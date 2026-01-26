@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: xu-AI-Zero-backend
+  profiles:
+    active: local
+
