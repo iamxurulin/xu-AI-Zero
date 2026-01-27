@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.ruhuo</groupId>
-    <artifactId>xu-AI-Zero-backend</artifactId>
+    <artifactId>xu-AI-Zero</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>xu-AI-Zero-backend</name>
     <description>xu-AI-Zero-backend</description>
