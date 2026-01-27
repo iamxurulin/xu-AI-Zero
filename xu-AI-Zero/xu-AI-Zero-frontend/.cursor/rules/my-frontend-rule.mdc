@@ -1,0 +1,9 @@
+---
+description: generate frontend vue code
+alwaysApply: false
+---
+生成前端 Vue 代码时，使用 Vue3 的 组合式 API 语法
+
+# Overview
+
+Insert overview text here. The agent will only see this should they choose to apply the rule.
