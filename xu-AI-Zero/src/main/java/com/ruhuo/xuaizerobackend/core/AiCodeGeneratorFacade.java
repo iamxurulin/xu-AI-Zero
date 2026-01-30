@@ -3,6 +3,8 @@ package com.ruhuo.xuaizerobackend.core;
 import com.ruhuo.xuaizerobackend.ai.AiCodeGeneratorService;
 import com.ruhuo.xuaizerobackend.ai.model.HtmlCodeResult;
 import com.ruhuo.xuaizerobackend.ai.model.MultiFileCodeResult;
+import com.ruhuo.xuaizerobackend.core.parser.CodeParserExecutor;
+import com.ruhuo.xuaizerobackend.core.saver.CodeFileSaverExecutor;
 import com.ruhuo.xuaizerobackend.exception.BusinessException;
 import com.ruhuo.xuaizerobackend.exception.ErrorCode;
 import com.ruhuo.xuaizerobackend.model.enums.CodeGenTypeEnum;
@@ -23,6 +25,31 @@ public class AiCodeGeneratorFacade {
     @Resource
     private AiCodeGeneratorService aiCodeGeneratorService;
 
+    private Flux<String> processCodeStream(Flux<String> codeStream,CodeGenTypeEnum codeGenType){
+
+        StringBuilder codeBuilder = new StringBuilder();
+
+        return codeStream.doOnNext(chunk->{
+            //实时收集代码片段
+            codeBuilder.append(chunk);
+        }).doOnComplete(()->{
+            //流式返回完成后保存代码
+            try{
+                String completeCode = codeBuilder.toString();
+
+                //使用执行器解析代码
+                Object parseResult = CodeParserExecutor.executeParser(completeCode,codeGenType);
+
+                //使用执行器保存代码
+                File savedDir = CodeFileSaverExecutor.executeSaver(parseResult,codeGenType);
+                log.info("保存成功，路径为："+savedDir.getAbsolutePath());
+            }catch (Exception e){
+                log.error("保存失败：{}",e.getMessage());
+            }
+        });
+    }
+
+
     /**
      * 统一入口
      *
@@ -37,8 +64,14 @@ public class AiCodeGeneratorFacade {
         }
         // 2. 智能路由（根据枚举类型，决定走哪条流水线）
         return switch(codeGenTypeEnum){
-            case HTML -> generateAndSaveHtmlCode(userMessage);// 走 HTML 流水线
-            case MULTI_FILE -> generateAndSaveMultiFileCode(userMessage);// 走多文件流水线
+            case HTML -> {
+                HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode(userMessage);
+                yield CodeFileSaverExecutor.executeSaver(result,CodeGenTypeEnum.HTML);
+            }
+            case MULTI_FILE -> {
+                MultiFileCodeResult result = aiCodeGeneratorService.generateMultiFileCode(userMessage);
+                yield CodeFileSaverExecutor.executeSaver(result,CodeGenTypeEnum.MULTI_FILE);
+            }
             default -> {
                 // 兜底逻辑：如果加了新枚举但没写实现，这里会报错提醒你
                 String errorMessage = "不支持的生成类型："+codeGenTypeEnum.getValue();
@@ -90,9 +123,27 @@ public class AiCodeGeneratorFacade {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR,"生成类型为空");
         }
         // 2. 智能路由（根据枚举类型，决定走哪条流水线）
+        // return 等着 switch 吐出一个结果
+        /**
+         * return：直接结束整个方法（generateAndSaveCodeStream）\。
+         * yield：只是结束当前的 switch 分支，把值扔出来。
+         */
         return switch(codeGenTypeEnum){
-            case HTML -> generateAndSaveHtmlCodeStream(userMessage);// 走 HTML 流水线
-            case MULTI_FILE -> generateAndSaveMultiFileCodeStream(userMessage);// 走多文件流水线
+
+            /**
+             * 如果 case 后面逻辑比较复杂，需要写多行代码（比如先调用服务，再处理数据），
+             * 就必须加上大括号 { ... }。
+             * 一旦加了大括号，Java 就不知道哪一行是最终结果了，
+             * 所以必须用 yield 显式地告诉它：“喏，这个就是我要返回给 switch 的值”。
+             */
+            case HTML -> {
+                Flux<String> codeStream = aiCodeGeneratorService.generateHtmlCodeSream(userMessage);
+                yield processCodeStream(codeStream,CodeGenTypeEnum.HTML);
+            }
+            case MULTI_FILE -> {
+                Flux<String> codeStream = aiCodeGeneratorService.generateMultiFileCodeStream(userMessage);
+                yield processCodeStream(codeStream,CodeGenTypeEnum.MULTI_FILE);
+            }
             default -> {
                 // 兜底逻辑：如果加了新枚举但没写实现，这里会报错提醒你
                 String errorMessage = "不支持的生成类型："+codeGenTypeEnum.getValue();

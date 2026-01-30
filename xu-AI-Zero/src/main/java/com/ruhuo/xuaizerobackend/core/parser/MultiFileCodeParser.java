@@ -1,50 +1,24 @@
-package com.ruhuo.xuaizerobackend.core;
+package com.ruhuo.xuaizerobackend.core.parser;
 
-import com.ruhuo.xuaizerobackend.ai.model.HtmlCodeResult;
 import com.ruhuo.xuaizerobackend.ai.model.MultiFileCodeResult;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 代码解析器
- *
- * 提供静态方法解析不同类型的代码内容
- *
+ * 多文件代码解析器（HTML + CSS + JS）
  */
-@Deprecated
-public class CodeParser {
-
+public class MultiFileCodeParser implements CodeParser<MultiFileCodeResult> {
+    //Pattern.CASE_INSENSITIVE 是 Java 正则表达式中一个非常常用的标志位（Flag）。
+    //它的核心作用是：让正则表达式在匹配时，“忽略”字母的大小写差异。
     private static final Pattern HTML_CODE_PATTERN = Pattern.compile("```html\\s*\\n([\\s\\S]*?)```",Pattern.CASE_INSENSITIVE);
 
     private static final Pattern CSS_CODE_PATTERN = Pattern.compile("```css\\s*\\n([\\s\\S]*?)```",Pattern.CASE_INSENSITIVE);
 
     private static final Pattern JS_CODE_PATTERN = Pattern.compile("```(?:js|javascript)\\s*\\n([\\s\\S]*?)```",Pattern.CASE_INSENSITIVE);
 
-    /**
-     * 解析HTML单文件代码
-     * @param codeContent
-     * @return
-     */
-    public static HtmlCodeResult parseHtmlCode(String codeContent){
-        HtmlCodeResult result = new HtmlCodeResult();
-        //提取HTML代码
-        String htmlCode = extractHtmlCode(codeContent);
-        if(htmlCode!=null&&!htmlCode.trim().isEmpty()){
-            result.setHtmlCode(htmlCode.trim());
-        }else{
-            //如果没有找到代码块，将整个内容作为HTML
-            result.setHtmlCode(codeContent.trim());
-        }
-        return result;
-    }
-
-    /**
-     * 解析多文件代码（HTML+CSS+JS）
-     * @param codeContent
-     * @return
-     */
-    public static MultiFileCodeResult parseMultiFileCode(String codeContent){
+    @Override
+    public MultiFileCodeResult parseCode(String codeContent){
         MultiFileCodeResult result = new MultiFileCodeResult();
         //提取各类代码
         String htmlCode = extractCodeByPattern(codeContent,HTML_CODE_PATTERN);
@@ -69,20 +43,6 @@ public class CodeParser {
     }
 
     /**
-     * 提取HTML代码内容
-     *
-     * @param content 原始内容
-     * @return HTML代码
-     */
-    private static String extractHtmlCode(String content){
-        Matcher matcher = HTML_CODE_PATTERN.matcher(content);
-        if(matcher.find()){
-            return matcher.group(1);// 返回正则里第一个括号 () 匹配到的内容
-        }
-        return null;
-    }
-
-    /**
      * 根据正则模式提取代码
      *
      * @param content 原始内容
@@ -96,4 +56,5 @@ public class CodeParser {
         }
         return null;
     }
+
 }
