@@ -14,10 +14,7 @@ import com.ruhuo.xuaizerobackend.constant.UserConstant;
 import com.ruhuo.xuaizerobackend.exception.BusinessException;
 import com.ruhuo.xuaizerobackend.exception.ErrorCode;
 import com.ruhuo.xuaizerobackend.exception.ThrowUtils;
-import com.ruhuo.xuaizerobackend.model.dto.app.AppAddRequest;
-import com.ruhuo.xuaizerobackend.model.dto.app.AppAdminUpdateRequest;
-import com.ruhuo.xuaizerobackend.model.dto.app.AppQueryRequest;
-import com.ruhuo.xuaizerobackend.model.dto.app.AppUpdateRequest;
+import com.ruhuo.xuaizerobackend.model.dto.app.*;
 import com.ruhuo.xuaizerobackend.model.entity.App;
 import com.ruhuo.xuaizerobackend.model.entity.User;
 import com.ruhuo.xuaizerobackend.model.enums.CodeGenTypeEnum;
@@ -26,6 +23,7 @@ import com.ruhuo.xuaizerobackend.service.AppService;
 import com.ruhuo.xuaizerobackend.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.logging.log4j.util.PerformanceSensitive;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
@@ -91,6 +89,33 @@ public class AppController {
                         .build()
         ));
     }
+
+    /**
+     * 应用部署
+     *
+     * 主要职责是:
+     *
+     * 接收请求、检查参数、获取当前操作人，
+     * 然后把任务派发给 Service 层去干活。
+     *
+     * @param appDeployRequest 部署请求
+     * @param request 请求
+     * @return 部署URL
+     */
+    @PostMapping("/deploy")
+    public BaseResponse<String> deployApp(@RequestBody AppDeployRequest appDeployRequest,HttpServletRequest request){
+        ThrowUtils.throwIf(appDeployRequest==null,ErrorCode.PARAMS_ERROR);
+        Long appId = appDeployRequest.getAppId();
+        ThrowUtils.throwIf(appId==null||appId<=0,ErrorCode.PARAMS_ERROR,"应用 ID 不能为空");
+
+        //获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        //调用服务部署应用
+        String deployUrl = appService.deployApp(appId,loginUser);
+        return ResultUtils.success(deployUrl);
+
+    }
+
     /**
      * 创建应用
      *

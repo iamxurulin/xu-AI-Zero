@@ -5,6 +5,7 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.ruhuo.xuaizerobackend.ai.model.HtmlCodeResult;
 import com.ruhuo.xuaizerobackend.ai.model.MultiFileCodeResult;
+import com.ruhuo.xuaizerobackend.constant.AppConstant;
 import com.ruhuo.xuaizerobackend.exception.BusinessException;
 import com.ruhuo.xuaizerobackend.exception.ErrorCode;
 import com.ruhuo.xuaizerobackend.model.enums.CodeGenTypeEnum;
@@ -23,7 +24,8 @@ import java.util.prefs.BackingStoreException;
  */
 public abstract class CodeFileSaverTemplate<T> {
 
-    protected static final String FILE_SAVE_ROOT_DIR = System.getProperty("user.dir")+"/tmp/code_output";
+    //【文件保存根目录】常量
+    protected static final String FILE_SAVE_ROOT_DIR = AppConstant.CODE_OUTPUT_ROOT_DIR;
 
     /**
      * 模板方法：保存代码的标准流程（使用appId）
