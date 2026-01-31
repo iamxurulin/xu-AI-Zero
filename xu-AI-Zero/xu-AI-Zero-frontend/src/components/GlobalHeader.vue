@@ -51,16 +51,14 @@
 <script setup lang="ts">
 import {computed, h, ref} from 'vue'
 import { useRouter } from 'vue-router'
-import type { MenuProps } from 'ant-design-vue'
+import { type MenuProps, message } from 'ant-design-vue'
 
 import { useLoginUserStore } from '@/stores/loginUser.ts'
 import {LogoutOutlined,HomeOutlined} from '@ant-design/icons-vue'
 import {userLogout} from "@/api/userController.ts";
-import {message} from "ant-design-vue";
-import checkAccess from "@/access/checkAccess.ts";
+
 
 const loginUserStore = useLoginUserStore()
-
 const router = useRouter()
 // 当前选中菜单
 const selectedKeys = ref<string[]>(['/'])
@@ -83,6 +81,11 @@ const originItems = [
     title: '用户管理',
   },
   {
+    key: '/admin/appManage',
+    label: '应用管理',
+    title: '应用管理',
+  },
+  {
     key: 'others',
     label: h('a', { href: 'https://iamxurulin.github.io', target: '_blank' }, 'Coder_Studio'),
     title: 'iamxurulin',
@@ -90,15 +93,6 @@ const originItems = [
 ]
 
 //过滤菜单项
-
-// const items = menus.filter((menu)=>{
-//   const item = menuToRouteItem(menu);
-//   if(item.meta?.hideInMenu){
-//     return false;
-//   }
-//   //根据权限过滤菜单，有权限则返回true，则保留该菜单
-//   return checkAccess(loginUserStore.loginUser,item.meta?.access as string);
-// })
 const filterMenus = (menus = [] as MenuProps['items'])=> {
   return menus?.filter((menu)=>{
     const menuKey = menu?.key as string
