@@ -17,13 +17,30 @@ class AiCodeGeneratorServiceTest {
 
     @Test
     void generateHtmlCode() {
-        HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode("做个程序员xurulin的工作记录小工具");
+        HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode(1,"做个HashMap学习笔记的网站，总代码不超过20行代码");
         Assertions.assertNotNull(result);
     }
 
     @Test
     void generateMultiFileCode() {
-        MultiFileCodeResult multiFileCode = aiCodeGeneratorService.generateMultiFileCode("做个程序员xurulin的留言板");
+        MultiFileCodeResult multiFileCode = aiCodeGeneratorService.generateMultiFileCode("做个二叉树学习笔记的网站，总代码不超过20行");
         Assertions.assertNotNull(multiFileCode);
     }
+
+    @Test
+    void testChatMemory(){
+        HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode(1,"做个HashMap学习笔记的网站，总代码不超过20行代码");
+
+        Assertions.assertNotNull(result);
+
+        result = aiCodeGeneratorService.generateHtmlCode(1,"不要生成网站，告诉我你刚才做了什么？");
+        Assertions.assertNotNull(result);
+
+        result = aiCodeGeneratorService.generateHtmlCode(2,"做个HashMap学习笔记的网站，总代码不超过20行代码");
+        Assertions.assertNotNull(result);
+
+        result = aiCodeGeneratorService.generateHtmlCode(2,"不要生成网站，告诉我你刚才做了什么？");
+        Assertions.assertNotNull(result);
+    }
+
 }

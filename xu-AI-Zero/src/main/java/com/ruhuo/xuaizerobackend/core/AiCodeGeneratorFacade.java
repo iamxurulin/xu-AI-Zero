@@ -73,7 +73,7 @@ public class AiCodeGeneratorFacade {
         // 2. 智能路由（根据枚举类型，决定走哪条流水线）
         return switch(codeGenTypeEnum){
             case HTML -> {
-                HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode(userMessage);
+                HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode(1,userMessage);
                 yield CodeFileSaverExecutor.executeSaver(result,CodeGenTypeEnum.HTML,appId);
             }
             case MULTI_FILE -> {
@@ -97,7 +97,7 @@ public class AiCodeGeneratorFacade {
      */
     private File generateAndSaveHtmlCode(String userMessage){
         // 第一步：调用 AI 生成 (Ask AI)
-        HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode(userMessage);
+        HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode(1,userMessage);
         // 第二步：调用工具类保存 (Save to Disk)
         return CodeFileSaver.saveHtmlCodeResult(result);
     }
