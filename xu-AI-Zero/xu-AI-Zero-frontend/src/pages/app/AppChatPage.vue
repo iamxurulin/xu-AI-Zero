@@ -27,6 +27,12 @@
       <div class="chat-section">
         <!-- 消息区域 -->
         <div class="messages-container" ref="messagesContainer">
+          <!-- 加载更多按钮 -->
+          <div v-if="hasMoreHistory" class="load-more-container">
+            <a-button type="link" @click="loadMoreHistory" :loading="loadingHistory" size="small">
+              加载更多历史消息
+            </a-button>
+          </div>
           <div v-for="(message, index) in messages" :key="index" class="message-item">
             <div v-if="message.type === 'user'" class="user-message">
               <div class="message-content">{{ message.content }}</div>
@@ -86,7 +92,6 @@
           </div>
         </div>
       </div>
-
       <!-- 右侧网页展示区域 -->
       <div class="preview-section">
         <div class="preview-header">
@@ -148,6 +153,7 @@ import {
   deployApp as deployAppApi,
   deleteApp as deleteAppApi,
 } from '@/api/appController'
+import { listAppChatHistory } from '@/api/chatHistoryController'
 import { CodeGenTypeEnum } from '@/utils/codeGenTypes'
 import request from '@/request'
 
@@ -170,20 +176,26 @@ const loginUserStore = useLoginUserStore()
 
 // 应用信息
 const appInfo = ref<API.AppVO>()
-const appId = ref<string>()
+const appId = ref<any>()
 
 // 对话相关
 interface Message {
   type: 'user' | 'ai'
   content: string
   loading?: boolean
+  createTime?: string
 }
 
 const messages = ref<Message[]>([])
 const userInput = ref('')
 const isGenerating = ref(false)
 const messagesContainer = ref<HTMLElement>()
-const hasInitialConversation = ref(false) // 标记是否已经进行过初始对话
+
+// 对话历史相关
+const loadingHistory = ref(false)
+const hasMoreHistory = ref(false)
+const lastCreateTime = ref<string>()
+const historyLoaded = ref(false)
 
 // 预览相关
 const previewUrl = ref('')
@@ -211,6 +223,60 @@ const showAppDetail = () => {
   appDetailVisible.value = true
 }
 
+// 加载对话历史
+const loadChatHistory = async (isLoadMore = false) => {
+  if (!appId.value || loadingHistory.value) return
+  loadingHistory.value = true
+  try {
+    const params: API.listAppChatHistoryParams = {
+      appId: appId.value,
+      pageSize: 10,
+    }
+    // 如果是加载更多，传递最后一条消息的创建时间作为游标
+    if (isLoadMore && lastCreateTime.value) {
+      params.lastCreateTime = lastCreateTime.value
+    }
+    const res = await listAppChatHistory(params)
+    if (res.data.code === 0 && res.data.data) {
+      const chatHistories = res.data.data.records || []
+      if (chatHistories.length > 0) {
+        // 将对话历史转换为消息格式，并按时间正序排列（老消息在前）
+        const historyMessages: Message[] = chatHistories
+          .map((chat) => ({
+            type: (chat.messageType === 'user' ? 'user' : 'ai') as 'user' | 'ai',
+            content: chat.message || '',
+            createTime: chat.createTime,
+          }))
+          .reverse() // 反转数组，让老消息在前
+        if (isLoadMore) {
+          // 加载更多时，将历史消息添加到开头
+          messages.value.unshift(...historyMessages)
+        } else {
+          // 初始加载，直接设置消息列表
+          messages.value = historyMessages
+        }
+        // 更新游标
+        lastCreateTime.value = chatHistories[chatHistories.length - 1]?.createTime
+        // 检查是否还有更多历史
+        hasMoreHistory.value = chatHistories.length === 10
+      } else {
+        hasMoreHistory.value = false
+      }
+      historyLoaded.value = true
+    }
+  } catch (error) {
+    console.error('加载对话历史失败：', error)
+    message.error('加载对话历史失败')
+  } finally {
+    loadingHistory.value = false
+  }
+}
+
+// 加载更多历史消息
+const loadMoreHistory = async () => {
+  await loadChatHistory(true)
+}
+
 // 获取应用信息
 const fetchAppInfo = async () => {
   const id = route.params.id as string
@@ -227,12 +293,20 @@ const fetchAppInfo = async () => {
     if (res.data.code === 0 && res.data.data) {
       appInfo.value = res.data.data
 
-      // 检查是否有view=1参数，如果有则不自动发送初始提示词
-      const isViewMode = route.query.view === '1'
-
-      // 自动发送初始提示词（除非是查看模式或已经进行过初始对话）
-      if (appInfo.value.initPrompt && !isViewMode && !hasInitialConversation.value) {
-        hasInitialConversation.value = true
+      // 先加载对话历史
+      await loadChatHistory()
+      // 如果有至少2条对话记录，展示对应的网站
+      if (messages.value.length >= 2) {
+        updatePreview()
+      }
+      // 检查是否需要自动发送初始提示词
+      // 只有在是自己的应用且没有对话历史时才自动发送
+      if (
+        appInfo.value.initPrompt &&
+        isOwner.value &&
+        messages.value.length === 0 &&
+        historyLoaded.value
+      ) {
         await sendInitialMessage(appInfo.value.initPrompt)
       }
     } else {
@@ -302,23 +376,15 @@ const sendMessage = async () => {
 }
 
 // 生成代码 - 使用 EventSource 处理流式响应
-/**
- * 通过 EventSource，前端可以像听收音机一样，
- * 后端每蹦出一个字（Chunk），
- * 前端就能接收到一个事件，从而实现“打字机”效果
- *
- * @param userMessage
- * @param aiMessageIndex
- */
 const generateCode = async (userMessage: string, aiMessageIndex: number) => {
   let eventSource: EventSource | null = null
   let streamCompleted = false
 
   try {
-    // 1. 确定接口地址：优先用 axios 配置的 baseURL，否则用默认的 API_BASE_URL
+    // 获取 axios 配置的 baseURL
     const baseURL = request.defaults.baseURL || API_BASE_URL
 
-    // 2. 拼接参数：把 appId 和用户发的消息拼成 URL 参数
+    // 构建URL参数
     const params = new URLSearchParams({
       appId: appId.value || '',
       message: userMessage,
@@ -326,56 +392,27 @@ const generateCode = async (userMessage: string, aiMessageIndex: number) => {
 
     const url = `${baseURL}/app/chat/gen/code?${params}`
 
-    // 3. 核心：建立 SSE (Server-Sent Events) 连接
-    // withCredentials: true 表示允许跨域请求带上 Cookie/Token，这对于需要登录的接口非常重要
+    // 创建 EventSource 连接
     eventSource = new EventSource(url, {
       withCredentials: true,
     })
 
     let fullContent = ''
 
-    /**
-     * onmessage：这是一个回调函数。
-     * 每当后端推送一次数据（Chunk），
-     * 浏览器就会自动触发一次这个函数。
-     *
-     * streamCompleted：如果用户点击了“停止生成”，
-     * 这个标记位变为 true，
-     * 后续收到的数据就直接丢弃，不再处理。
-     *
-     * @param event
-     */
     // 处理接收到的消息
     eventSource.onmessage = function (event) {
       if (streamCompleted) return
 
       try {
-        /**
-         *   1. event.data 是后端发来的原始字符串，比如 '{"d":"你好"}'
-         */
         // 解析JSON包装的数据
         const parsed = JSON.parse(event.data)
-
-        // 2. 取出 "d" 字段。
         const content = parsed.d
 
         // 拼接内容
         if (content !== undefined && content !== null) {
-          // 1. 累加内容：把新来的碎片拼到旧内容后面
           fullContent += content
-
-          // 2. 更新 Vue 响应式数据
-          // messages 是聊天列表，aiMessageIndex 是当前正在生成的这条消息的下标
-          // 这一步一执行，网页上的文字就会自动变长！
           messages.value[aiMessageIndex].content = fullContent
-
-          // 3. 去除加载状态
-          // 只要收到了第一个字，那个“转圈圈”的 loading 就可以关掉了
           messages.value[aiMessageIndex].loading = false
-
-          // 4. 自动滚动到底部
-          // 因为文字变多了，页面高度会变高，
-          // 需要让滚动条时刻保持在最底下，方便用户阅读
           scrollToBottom()
         }
       } catch (error) {
@@ -385,43 +422,25 @@ const generateCode = async (userMessage: string, aiMessageIndex: number) => {
     }
 
     // 处理done事件
-    /**
-     * SSE（Server-Sent Events）允许后端给消息打标签。
-     * 普通内容（AI 生成的代码片段）通常是默认的 message 事件。
-     * 结束信号：后端特意发了一条 event: done 的消息，
-     * 告诉前端：“所有内容都传完了，over。”
-     */
     eventSource.addEventListener('done', function () {
-      // 防止重复执行
       if (streamCompleted) return
 
-      // 标记流已结束
       streamCompleted = true
-
-      // UI 状态更新：让“生成中...”的 loading 停下来
       isGenerating.value = false
-
-      // 主动断开连接
       eventSource?.close()
 
       // 延迟更新预览，确保后端已完成处理
       setTimeout(async () => {
-        // 重新获取应用信息
         await fetchAppInfo()
-        // 刷新右侧的 iframe 预览区域
         updatePreview()
       }, 1000)
     })
 
     // 处理错误
     eventSource.onerror = function () {
-      //如果流已经标记为结束了，或者用户已经点了“停止生成”，
-      // 那么无论发生什么错误，都直接忽略。
       if (streamCompleted || !isGenerating.value) return
-
       // 检查是否是正常的连接关闭
       if (eventSource?.readyState === EventSource.CONNECTING) {
-        // 当作正常结束处理
         streamCompleted = true
         isGenerating.value = false
         eventSource?.close()
@@ -431,7 +450,6 @@ const generateCode = async (userMessage: string, aiMessageIndex: number) => {
           updatePreview()
         }, 1000)
       } else {
-        // 当作错误处理
         handleError(new Error('SSE连接错误'), aiMessageIndex)
       }
     }
@@ -441,21 +459,12 @@ const generateCode = async (userMessage: string, aiMessageIndex: number) => {
   }
 }
 
-/**
- * 当 SSE 连接断开、网络超时、或者后端报错时，这个函数会被调用
- *
- * @param error
- * @param aiMessageIndex
- */
 // 错误处理函数
 const handleError = (error: unknown, aiMessageIndex: number) => {
   console.error('生成代码失败：', error)
   messages.value[aiMessageIndex].content = '抱歉，生成过程中出现了错误，请重试。'
   messages.value[aiMessageIndex].loading = false
-  //在屏幕顶端弹出一个红色的提示框
   message.error('生成失败，请重试')
-
-  //将“正在生成中”的全局开关关闭。
   isGenerating.value = false
 }
 
@@ -668,6 +677,13 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   color: #666;
+}
+
+/* 加载更多按钮 */
+.load-more-container {
+  text-align: center;
+  padding: 8px 0;
+  margin-bottom: 16px;
 }
 
 /* 输入区域 */
