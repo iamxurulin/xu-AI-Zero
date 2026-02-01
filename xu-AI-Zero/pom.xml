@@ -32,6 +32,20 @@
 
     <dependencies>
 
+        <!-- Spring Session + Redis -->
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
+        </dependency>
+
+
+        <!--caffeine本地缓存-->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+        </dependency>
+
+
         <!-- Spring Boot 配置注解处理器（解决 IDE 报红 + 提供配置提示） -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -39,7 +53,7 @@
             <optional>true</optional>
         </dependency>
 
-<!--        LangChain4j结合Redis 持久化对话记忆-->
+        <!--        LangChain4j结合Redis 持久化对话记忆-->
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-community-redis-spring-boot-starter</artifactId>

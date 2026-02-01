@@ -113,7 +113,6 @@ declare namespace API {
     id?: number
     message?: string
     messageType?: string
-    errorMsg?: string
     appId?: number
     userId?: number
     createTime?: string

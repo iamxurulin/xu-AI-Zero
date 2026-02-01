@@ -1,5 +1,6 @@
 package com.ruhuo.xuaizerobackend.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
@@ -15,11 +16,17 @@ import com.ruhuo.xuaizerobackend.model.entity.User;
 import com.ruhuo.xuaizerobackend.model.enums.ChatHistoryMessageTypeEnum;
 import com.ruhuo.xuaizerobackend.service.AppService;
 import com.ruhuo.xuaizerobackend.service.ChatHistoryService;
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.memory.ChatMemory;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 对话历史 服务层实现。
@@ -27,6 +34,7 @@ import java.time.LocalDateTime;
  * @author <a href="https://github.com/iamxurulin">iamxurulin</a>
  */
 @Service
+@Slf4j
 public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHistory> implements ChatHistoryService {
 
     @Resource
@@ -168,5 +176,54 @@ public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatH
 
         //查询数据
         return this.page(Page.of(1,pageSize),queryWrapper);
+    }
+
+    /**
+     * 查询最近记录 -> 剔除当前消息 -> 时间正序排列 -> 格式转换 -> 填入记忆
+     *
+     * @param appId
+     * @param chatMemory
+     * @param maxCount 最多加载多少条
+     * @return
+     */
+
+    @Override
+    public int loadChatHistoryToMemory(Long appId, MessageWindowChatMemory chatMemory, int maxCount) {
+        try {
+            //直接构造查询条件，起始点为1而不是0，用于排除最新的用户消息
+            QueryWrapper queryWrapper = QueryWrapper.create()
+                    .eq(ChatHistory::getAppId,appId)
+                    .orderBy(ChatHistory::getCreateTime,false)// false = 降序 (DESC)，先查最新的
+                    .limit(1,maxCount);// limit 1, 20 (跳过第1条，取后面20条)
+            List<ChatHistory> historyList = this.list(queryWrapper);
+            if(CollUtil.isEmpty(historyList)){
+                return 0;
+            }
+
+            //反转列表，确保按时间正序（老的在前，新的在后）
+            historyList = historyList.reversed();
+
+            //按时间顺序添加到记忆中
+            int loadedCount = 0;
+
+            //先清理历史缓存，防止重复加载
+            chatMemory.clear();
+
+            for (ChatHistory history:historyList){
+                if(ChatHistoryMessageTypeEnum.USER.getValue().equals(history.getMessageType())){
+                    chatMemory.add(UserMessage.from(history.getMessage()));
+                    loadedCount++;
+                }else if(ChatHistoryMessageTypeEnum.AI.getValue().equals(history.getMessageType())){
+                    chatMemory.add(AiMessage.from(history.getMessage()));
+                    loadedCount++;
+                }
+            }
+            log.info("成功为 appId:{}加载了{}条历史对话",appId,loadedCount);
+            return loadedCount;
+        }catch (Exception e) {
+            log.error("加载历史对话失败，appId:{},error:{}", appId, e.getMessage(), e);
+            //加载失败不影响系统运行，只是没有历史上下文
+            return 0;
+        }
     }
 }

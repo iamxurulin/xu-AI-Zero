@@ -64,3 +64,19 @@
 ● 删除单条消息
 ● 加载时自动请求
 ● 错误处理
+
+### 对话记忆后端开发
+
+配置Redis，给AI服务方法增加memoryId注解和参数，通过chatMeomryProvider为每个appId分配对话记忆。
+
+1.修改AI Service 工厂类，给每个应用分配一个专属的AI Sevice，这样每个AI Service绑定独立的对话记忆。
+
+2.引入Caffeine本地缓存优化性能，避免重复构造。
+
+3.实现历史对话加载。
+
+4.使用Spring Session + Redis管理登录态
+
+fix：
+
+无法加载对话记忆系统错误，删除AI添加到ChatHistory中的errorMsg字段

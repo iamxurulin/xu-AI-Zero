@@ -17,7 +17,7 @@ class AiCodeGeneratorServiceTest {
 
     @Test
     void generateHtmlCode() {
-        HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode(1,"做个HashMap学习笔记的网站，总代码不超过20行代码");
+        HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode("做个HashMap学习笔记的网站，总代码不超过20行");
         Assertions.assertNotNull(result);
     }
 
@@ -29,17 +29,17 @@ class AiCodeGeneratorServiceTest {
 
     @Test
     void testChatMemory(){
-        HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode(1,"做个HashMap学习笔记的网站，总代码不超过20行代码");
+        HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode("做个HashMap学习笔记的网站，总代码不超过20行代码");
 
         Assertions.assertNotNull(result);
 
-        result = aiCodeGeneratorService.generateHtmlCode(1,"不要生成网站，告诉我你刚才做了什么？");
+        result = aiCodeGeneratorService.generateHtmlCode("不要生成网站，告诉我你刚才做了什么？");
         Assertions.assertNotNull(result);
 
-        result = aiCodeGeneratorService.generateHtmlCode(2,"做个HashMap学习笔记的网站，总代码不超过20行代码");
+        result = aiCodeGeneratorService.generateHtmlCode("做个HashMap学习笔记的网站，总代码不超过20行代码");
         Assertions.assertNotNull(result);
 
-        result = aiCodeGeneratorService.generateHtmlCode(2,"不要生成网站，告诉我你刚才做了什么？");
+        result = aiCodeGeneratorService.generateHtmlCode("不要生成网站，告诉我你刚才做了什么？");
         Assertions.assertNotNull(result);
     }
 
