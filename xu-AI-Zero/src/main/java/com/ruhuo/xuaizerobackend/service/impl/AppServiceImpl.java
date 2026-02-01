@@ -16,18 +16,22 @@ import com.ruhuo.xuaizerobackend.model.dto.app.AppQueryRequest;
 import com.ruhuo.xuaizerobackend.model.entity.App;
 import com.ruhuo.xuaizerobackend.mapper.AppMapper;
 import com.ruhuo.xuaizerobackend.model.entity.User;
+import com.ruhuo.xuaizerobackend.model.enums.ChatHistoryMessageTypeEnum;
 import com.ruhuo.xuaizerobackend.model.enums.CodeGenTypeEnum;
 import com.ruhuo.xuaizerobackend.model.vo.AppVO;
 import com.ruhuo.xuaizerobackend.model.vo.UserVO;
 import com.ruhuo.xuaizerobackend.service.AppService;
+import com.ruhuo.xuaizerobackend.service.ChatHistoryService;
 import com.ruhuo.xuaizerobackend.service.UserService;
 import io.micrometer.observation.GlobalObservationConvention;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +44,7 @@ import java.util.stream.Collectors;
  * @author <a href="https://github.com/iamxurulin">iamxurulin</a>
  */
 @Service
+@Slf4j
 public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppService {
 
     @Resource
@@ -47,8 +52,44 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     @Resource
     private AiCodeGeneratorFacade aiCodeGeneratorFacade;
 
+    @Resource
+    private ChatHistoryService chatHistoryService;
+
+    /**
+     *
+     * 删除应用（App）记录时，
+     * 顺带删除与之关联的所有对话历史记录（ChatHistory）
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public boolean removeById(Serializable id) {
+        if (id == null) {
+            return false;
+        }
+        // 转换为 Long 类型
+        Long appId = Long.valueOf(id.toString());
+        if(appId<=0){
+            return false;
+        }
+
+        //先删除关联的对话历史
+        try{
+            chatHistoryService.deleteByAppId(appId);
+        }catch (Exception e){
+            //记录日志但不阻止应用删除
+            log.error("删除应用关联对话历史失败：{}",e.getMessage());
+        }
+
+        //删除应用
+        return super.removeById(id);
+    }
+
     /**
      * 处理用户“通过对话生成代码”的请求。
+     *
+     *用户发送消息 → 校验权限 → 调用 AI 生成代码（流式） → 实时返回结果 → 保存聊天记录
      *
      * @param appId 应用ID
      * @param message 提示词
@@ -77,9 +118,31 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
             throw new BusinessException(ErrorCode.SYSTEM_ERROR,"不支持的代码生成类型");
         }
 
-        //5.调用AI生成代码
-        return aiCodeGeneratorFacade.generateAndSaveCodeStream(message,codeGenTypeEnum,appId);
+        //5.通过校验后，添加用户消息到对话历史
+        //把用户的输入保存到数据库（聊天记录表）
+        chatHistoryService.addChatMessage(appId,message, ChatHistoryMessageTypeEnum.USER.getValue(),loginUser.getId());
 
+        //6.调用AI生成代码（流式）
+        Flux<String> contentFlux = aiCodeGeneratorFacade.generateAndSaveCodeStream(message,codeGenTypeEnum,appId);
+
+        //7.收集AI响应内容并在完成后记录到对话记录
+        StringBuilder aiResponseBuilder = new StringBuilder();
+
+        return contentFlux.map(chunk->{
+            //收集AI响应内容
+            aiResponseBuilder.append(chunk);
+            return chunk;
+        }).doOnComplete(()->{
+            //流式响应完成后，添加AI消息到对话历史
+            String aiResponse = aiResponseBuilder.toString();
+            if(StrUtil.isNotBlank(aiResponse)){
+                chatHistoryService.addChatMessage(appId,aiResponse,ChatHistoryMessageTypeEnum.AI.getValue(), loginUser.getId());
+            }
+        }).doOnError(error->{
+            //如果AI回复失败，也要记录错误信息
+            String errorMessage = "AI回复失败："+error.getMessage();
+            chatHistoryService.addChatMessage(appId,errorMessage,ChatHistoryMessageTypeEnum.AI.getValue(), loginUser.getId());
+        });
     }
 
     /**
