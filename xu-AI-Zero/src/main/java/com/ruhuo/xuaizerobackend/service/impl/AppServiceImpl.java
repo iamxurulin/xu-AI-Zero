@@ -14,9 +14,9 @@ import com.ruhuo.xuaizerobackend.core.handler.StreamHandlerExecutor;
 import com.ruhuo.xuaizerobackend.exception.BusinessException;
 import com.ruhuo.xuaizerobackend.exception.ErrorCode;
 import com.ruhuo.xuaizerobackend.exception.ThrowUtils;
+import com.ruhuo.xuaizerobackend.mapper.AppMapper;
 import com.ruhuo.xuaizerobackend.model.dto.app.AppQueryRequest;
 import com.ruhuo.xuaizerobackend.model.entity.App;
-import com.ruhuo.xuaizerobackend.mapper.AppMapper;
 import com.ruhuo.xuaizerobackend.model.entity.User;
 import com.ruhuo.xuaizerobackend.model.enums.ChatHistoryMessageTypeEnum;
 import com.ruhuo.xuaizerobackend.model.enums.CodeGenTypeEnum;
@@ -24,16 +24,16 @@ import com.ruhuo.xuaizerobackend.model.vo.AppVO;
 import com.ruhuo.xuaizerobackend.model.vo.UserVO;
 import com.ruhuo.xuaizerobackend.service.AppService;
 import com.ruhuo.xuaizerobackend.service.ChatHistoryService;
+import com.ruhuo.xuaizerobackend.service.ScreenshotService;
 import com.ruhuo.xuaizerobackend.service.UserService;
-import io.micrometer.observation.GlobalObservationConvention;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.io.File;
-import java.time.LocalDateTime;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +62,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
 
     @Resource
     private VueProjectBuilder vueProjectBuilder;
+
+    @Resource
+    private ScreenshotService screenshotService;
 
     /**
      *
@@ -204,7 +207,7 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
             throw new BusinessException(ErrorCode.SYSTEM_ERROR,"部署失败："+e.getMessage());
         }
 
-        //8.更新应用的deployKey和部署时间
+        //9.更新应用的deployKey和部署时间
         App updateApp = new App();
         updateApp.setId(appId);
         updateApp.setDeployKey(deployKey);
@@ -213,8 +216,33 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
 
         ThrowUtils.throwIf(!updateResult,ErrorCode.OPERATION_ERROR,"更新应用部署信息失败");
 
-        //9.返回可访问的URL
-        return String.format("%s/%s",AppConstant.CODE_DEPLOY_HOST,deployKey);
+        //10.得到可访问的URL地址
+        String appDeployUrl = String.format("%s/%s/",AppConstant.CODE_DEPLOY_HOST,deployKey);
+
+        //11.异步生成截图并更新应用封面
+        generateAppScreenshotAysnc(appId,appDeployUrl);
+        return appDeployUrl;
+    }
+
+    /**
+     * 异步生成应用截图并更新封面
+     *
+     * @param appId     应用ID
+     * @param appUrl    应用访问URL
+     */
+    public void generateAppScreenshotAysnc(Long appId,String appUrl){
+        //使用虚拟线程异步执行
+        Thread.startVirtualThread(()->{
+            //调用截图服务生成截图并上传
+            String screenshotUrl = screenshotService.generateAndUploadScreenshot(appUrl);
+
+            //更新应用封面字段
+            App updateApp = new App();
+            updateApp.setId(appId);
+            updateApp.setCover(screenshotUrl);
+            boolean updated = this.updateById(updateApp);
+            ThrowUtils.throwIf(!updated,ErrorCode.OPERATION_ERROR,"更新应用封面字段失败");
+        });
     }
 
     @Override
