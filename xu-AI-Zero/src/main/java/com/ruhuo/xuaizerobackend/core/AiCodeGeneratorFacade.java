@@ -1,14 +1,21 @@
 package com.ruhuo.xuaizerobackend.core;
 
+import cn.hutool.json.JSONUtil;
 import com.ruhuo.xuaizerobackend.ai.AiCodeGeneratorService;
 import com.ruhuo.xuaizerobackend.ai.AiCodeGeneratorServiceFactory;
 import com.ruhuo.xuaizerobackend.ai.model.HtmlCodeResult;
 import com.ruhuo.xuaizerobackend.ai.model.MultiFileCodeResult;
+import com.ruhuo.xuaizerobackend.ai.model.message.AiResponseMessage;
+import com.ruhuo.xuaizerobackend.ai.model.message.ToolExecutedMessage;
+import com.ruhuo.xuaizerobackend.ai.model.message.ToolRequestMessage;
 import com.ruhuo.xuaizerobackend.core.parser.CodeParserExecutor;
 import com.ruhuo.xuaizerobackend.core.saver.CodeFileSaverExecutor;
 import com.ruhuo.xuaizerobackend.exception.BusinessException;
 import com.ruhuo.xuaizerobackend.exception.ErrorCode;
 import com.ruhuo.xuaizerobackend.model.enums.CodeGenTypeEnum;
+import dev.langchain4j.model.chat.response.ChatResponse;
+import dev.langchain4j.service.TokenStream;
+import dev.langchain4j.service.tool.ToolExecution;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +32,41 @@ import java.io.File;
 public class AiCodeGeneratorFacade {
     @Resource
     private AiCodeGeneratorServiceFactory aiCodeGeneratorServiceFactory;
+
+    /**
+     *
+     *将 LangChain4j 的 TokenStream（基于回调机制）转换为 Spring WebFlux 的 Flux（基于响应式流机制），
+     * 并将所有事件统一封装成 JSON 格式发给前端
+     *
+     * @param tokenStream TokenStream对象
+     * @return Flux<String> 流式响应
+     */
+    private Flux<String> processTokenStream(TokenStream tokenStream) {
+        return Flux.create(sink -> {
+            tokenStream.onPartialResponse((String partialResponse) -> {
+                        AiResponseMessage aiResponseMessage = new AiResponseMessage(partialResponse);
+                        sink.next(JSONUtil.toJsonStr(aiResponseMessage));
+                    })
+                    .onPartialToolExecutionRequest((index, toolExecutionRequest) -> {
+                        ToolRequestMessage toolRequestMessage = new ToolRequestMessage(toolExecutionRequest);
+                        sink.next(JSONUtil.toJsonStr(toolRequestMessage));
+                    })
+                    .onToolExecuted((ToolExecution toolExecution) -> {
+                        ToolExecutedMessage toolExecutedMessage = new ToolExecutedMessage(toolExecution);
+                        sink.next(JSONUtil.toJsonStr(toolExecutedMessage));
+                    })
+                    .onCompleteResponse((ChatResponse response) -> {
+                        sink.complete();
+                    })
+                    .onError((Throwable error) -> {
+                        error.printStackTrace();
+                        sink.error(error);
+                    })
+                    .start();
+        });
+    }
+
+
 
     /**
      * 通用流式代码处理方法（使用appId）
@@ -49,8 +91,8 @@ public class AiCodeGeneratorFacade {
                 Object parseResult = CodeParserExecutor.executeParser(completeCode,codeGenType);
 
                 //使用执行器保存代码
-                File savedDir = CodeFileSaverExecutor.executeSaver(parseResult,codeGenType,appId);
-                log.info("保存成功，路径为："+savedDir.getAbsolutePath());
+                File saveDir = CodeFileSaverExecutor.executeSaver(parseResult,codeGenType,appId);
+                log.info("保存成功，目录为：{}", saveDir.getAbsolutePath());
             }catch (Exception e){
                 log.error("保存失败：{}",e.getMessage());
             }
@@ -69,10 +111,10 @@ public class AiCodeGeneratorFacade {
     public File generateAndSaveCode(String userMessage, CodeGenTypeEnum codeGenTypeEnum, Long appId){
         // 1. 防御性检查
         if(codeGenTypeEnum == null){
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"生成类型为空");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "生成类型不能为空");
         }
         //根据 appId 获取对应的 AI 服务实例
-        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId);
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId, codeGenTypeEnum);
         // 2. 智能路由（根据枚举类型，决定走哪条流水线）
         return switch(codeGenTypeEnum){
             case HTML -> {
@@ -104,11 +146,11 @@ public class AiCodeGeneratorFacade {
     public Flux<String> generateAndSaveCodeStream(String userMessage, CodeGenTypeEnum codeGenTypeEnum, Long appId){
         // 1. 防御性检查
         if(codeGenTypeEnum == null){
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"生成类型为空");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"生成类型不能为空");
         }
 
         //根据 appId 获取对应的 AI 服务实例
-        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId);
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId,codeGenTypeEnum);
 
         // 2. 智能路由（根据枚举类型，决定走哪条流水线）
         // return 等着 switch 吐出一个结果
@@ -125,12 +167,16 @@ public class AiCodeGeneratorFacade {
              * 所以必须用 yield 显式地告诉它：“喏，这个就是我要返回给 switch 的值”。
              */
             case HTML -> {
-                Flux<String> codeStream = aiCodeGeneratorService.generateHtmlCodeSream(userMessage);
+                Flux<String> codeStream = aiCodeGeneratorService.generateHtmlCodeStream(userMessage);
                 yield processCodeStream(codeStream,CodeGenTypeEnum.HTML, appId);
             }
             case MULTI_FILE -> {
                 Flux<String> codeStream = aiCodeGeneratorService.generateMultiFileCodeStream(userMessage);
                 yield processCodeStream(codeStream,CodeGenTypeEnum.MULTI_FILE,appId);
+            }
+            case VUE_PROJECT -> {
+                TokenStream tokenStream = aiCodeGeneratorService.generateVueProjectCodeStream(appId, userMessage);
+                yield processTokenStream(tokenStream);
             }
             default -> {
                 // 兜底逻辑：如果加了新枚举但没写实现，这里会报错提醒你
