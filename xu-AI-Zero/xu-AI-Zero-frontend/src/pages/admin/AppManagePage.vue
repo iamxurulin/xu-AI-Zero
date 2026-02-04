@@ -303,7 +303,7 @@ const deleteApp = async (id: number | undefined) => {
   border-color: #d48806;
 }
 
-:deep(.ant-table-tbody > tr > td) {
+:deep(.ant-table-tbody> tr> td) {
   vertical-align: middle;
 }
 </style>

@@ -2,6 +2,7 @@ package com.ruhuo.xuaizerobackend.service;
 
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
+import com.ruhuo.xuaizerobackend.model.dto.app.AppAddRequest;
 import com.ruhuo.xuaizerobackend.model.dto.app.AppQueryRequest;
 import com.ruhuo.xuaizerobackend.model.entity.App;
 import com.ruhuo.xuaizerobackend.model.entity.User;
@@ -27,7 +28,13 @@ public interface AppService extends IService<App> {
      */
     Flux<String> chatToGenCode(Long appId, String message, User loginUser);
 
-
+    /**
+     * 创建应用
+     * @param appAddRequest
+     * @param loginUser
+     * @return
+     */
+    Long createApp(AppAddRequest appAddRequest,User loginUser);
     /**
      * 应用部署
      *
