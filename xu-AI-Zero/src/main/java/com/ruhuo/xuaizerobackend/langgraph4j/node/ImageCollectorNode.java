@@ -1,8 +1,10 @@
 package com.ruhuo.xuaizerobackend.langgraph4j.node;
 
+import com.ruhuo.xuaizerobackend.langgraph4j.ai.ImageCollectionService;
 import com.ruhuo.xuaizerobackend.langgraph4j.model.ImageResource;
 import com.ruhuo.xuaizerobackend.langgraph4j.model.enums.ImageCategoryEnum;
 import com.ruhuo.xuaizerobackend.langgraph4j.state.WorkflowContext;
+import com.ruhuo.xuaizerobackend.utils.SpringContextUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
@@ -23,28 +25,22 @@ public class ImageCollectorNode {
     public static AsyncNodeAction<MessagesState<String>> create(){
         return node_async(state ->{
             WorkflowContext context = WorkflowContext.getContext(state);
-            log.info("执行节点：图片收集");
+            String originalPrompt = context.getOriginalPrompt();
+            String imageListStr = "";
+            try{
+                //获取AI图片收集服务
+                ImageCollectionService imageCollectionService = SpringContextUtil.getBean(ImageCollectionService.class);
 
-            //TODO:实际执行图片收集逻辑
-
-            //简单的假数据
-            List<ImageResource> imageList = Arrays.asList(
-                    ImageResource.builder()
-                            .category(ImageCategoryEnum.CONTENT)
-                            .description("假数据图片1")
-                            .url("https://raw.githubusercontent.com/iamxurulin/picture-storage/refs/heads/main/role/role02.jpg")
-                            .build(),
-                    ImageResource.builder()
-                            .category(ImageCategoryEnum.LOGO)
-                            .description("假数据图片2")
-                            .url("https://raw.githubusercontent.com/iamxurulin/picture-storage/refs/heads/main/role/role02.jpg")
-                            .build()
-            );
+                //使用 AI 服务进行智能图片收集
+                imageListStr = imageCollectionService.collectImages(originalPrompt);
+                imageCollectionService.collectImages(originalPrompt);
+            }catch (Exception e){
+                log.error("图片收集失败：{}",e.getMessage(),e);
+            }
 
             //更新状态
             context.setCurrentSteps("图片收集");
-            context.setImageList(imageList);
-            log.info("图片收集完成，并收集{}张图片",imageList.size());
+            context.setImageListStr(imageListStr);
             return WorkflowContext.saveContext(context);
         });
     }
