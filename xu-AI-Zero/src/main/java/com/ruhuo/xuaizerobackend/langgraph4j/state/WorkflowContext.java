@@ -30,7 +30,7 @@ public class WorkflowContext implements Serializable {
     /**
      * 当前执行步骤
      */
-    private String currentSteps;
+    private String currentStep;
 
     /**
      * 用户原始输入的提示词

@@ -46,7 +46,7 @@ public class ProjectBuilderNode {
             }
 
             //更新状态
-            context.setCurrentSteps("项目构建");
+            context.setCurrentStep("项目构建");
             context.setBuildResultDir(buildResultDir);
             log.info("项目构建节点完成，最终目录:{}", buildResultDir);
             return WorkflowContext.saveContext(context);

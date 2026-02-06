@@ -44,7 +44,7 @@ public class CodeGeneratorNode {
             log.info("AI 代码生成完成，生成目录：{}",generatedCodeDir);
 
             //更新状态
-            context.setCurrentSteps("代码生成");
+            context.setCurrentStep("代码生成");
             context.setGeneratedCodeDir(generatedCodeDir);
             return WorkflowContext.saveContext(context);
         });

@@ -66,7 +66,7 @@ public class CodeGenWorkflow {
         //初始化WorkflowContext
         WorkflowContext initialContext = WorkflowContext.builder()
                 .originalPrompt(originalPrompt)
-                .currentSteps("初始化")
+                .currentStep("初始化")
                 .build();
 
         GraphRepresentation graph = workflow.getGraph(GraphRepresentation.Type.MERMAID);

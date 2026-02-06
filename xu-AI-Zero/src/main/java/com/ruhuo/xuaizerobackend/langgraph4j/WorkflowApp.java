@@ -39,7 +39,7 @@ public class WorkflowApp {
         //初始化WorkflowContext - 只设置基本信息
         WorkflowContext initialContext = WorkflowContext.builder()
                 .originalPrompt("创建一个iamxurulin的个人博客网站")
-                .currentSteps("初始化")
+                .currentStep("初始化")
                 .build();
         log.info("初始输入:{}",initialContext.getOriginalPrompt());
         log.info("开始执行工作流");

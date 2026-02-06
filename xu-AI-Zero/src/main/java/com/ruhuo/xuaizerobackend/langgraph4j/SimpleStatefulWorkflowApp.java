@@ -30,7 +30,7 @@ public class SimpleStatefulWorkflowApp {
             log.info("执行节点:{}-{}", nodeName, message);
             //只记录当前步骤，不做具体的状态流转
             if (context != null) {
-                context.setCurrentSteps(nodeName);
+                context.setCurrentStep(nodeName);
             }
             return WorkflowContext.saveContext(context);
         });
@@ -57,7 +57,7 @@ public class SimpleStatefulWorkflowApp {
         //初始化 WorkflowContext - 只设置基本信息
         WorkflowContext initialContext = WorkflowContext.builder()
                 .originalPrompt("创建一个xurulin的个人博客网站")
-                .currentSteps("初始化")
+                .currentStep("初始化")
                 .build();
 
         log.info("初始输入:{}",initialContext.getOriginalPrompt());

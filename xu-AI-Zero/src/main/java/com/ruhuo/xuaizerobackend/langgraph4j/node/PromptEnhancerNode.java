@@ -50,7 +50,7 @@ public class PromptEnhancerNode {
             String enhancedPrompt = enhancedPromptBuilder.toString();
 
             //更新状态
-            context.setCurrentSteps("提示词增强");
+            context.setCurrentStep("提示词增强");
             context.setEnhancedPrompt(enhancedPrompt);
             log.info("提示词增强完成，增强后长度：{} 字符",enhancedPrompt.length());
             return WorkflowContext.saveContext(context);

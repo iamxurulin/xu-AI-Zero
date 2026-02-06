@@ -30,7 +30,7 @@ public class RouterNode {
                 generationType = CodeGenTypeEnum.HTML;
             }
             //更新状态
-            context.setCurrentSteps("智能路由");
+            context.setCurrentStep("智能路由");
             context.setGenerationType(generationType);
             return WorkflowContext.saveContext(context);
         });

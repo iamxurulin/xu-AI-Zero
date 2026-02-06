@@ -52,7 +52,7 @@ public class CodeQualityCheckNode {
             }
 
             //3.更新状态
-            context.setCurrentSteps("代码质量检查");
+            context.setCurrentStep("代码质量检查");
             context.setQualityResult(qualityResult);
             return WorkflowContext.saveContext(context);
         });
