@@ -21,7 +21,7 @@ class CodeGenWorkflowTest {
 
     @Test
     void testCorporateWorkflow() {
-        WorkflowContext result = new CodeGenWorkflow().executeWorkflow("创建企业官网，展示公司形象和业务介绍");
+        WorkflowContext result = new CodeGenWorkflow().executeWorkflow("创建企业官网，展示公司形象和业务介绍，代码不超过50行");
 
         Assertions.assertNotNull(result);
 
