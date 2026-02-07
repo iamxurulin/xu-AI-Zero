@@ -2,6 +2,8 @@ package com.ruhuo.xuaizerobackend.ai;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.ruhuo.xuaizerobackend.ai.guardrail.PromptSafetyInputGuardrail;
+import com.ruhuo.xuaizerobackend.ai.guardrail.RetryOutputGuardrail;
 import com.ruhuo.xuaizerobackend.ai.tools.*;
 import com.ruhuo.xuaizerobackend.exception.BusinessException;
 import com.ruhuo.xuaizerobackend.exception.ErrorCode;
@@ -144,6 +146,8 @@ public class AiCodeGeneratorServiceFactory {
                         .hallucinatedToolNameStrategy(toolExecutionRequest -> ToolExecutionResultMessage.from(
                                 toolExecutionRequest,"Error: there is no tool called "+toolExecutionRequest.name()
                         ))
+                        .inputGuardrails(new PromptSafetyInputGuardrail())//添加输入护轨
+//                        .outputGuardrails(new RetryOutputGuardrail())//添加输出护轨
                         .build();
             }
 
@@ -157,6 +161,8 @@ public class AiCodeGeneratorServiceFactory {
                         .chatModel(chatModel)
                         .streamingChatModel(openAiStreamingChatModel)
                         .chatMemory(chatMemory)
+                        .inputGuardrails(new PromptSafetyInputGuardrail())//添加输入护轨
+//                        .outputGuardrails(new RetryOutputGuardrail())//添加输出护轨
                         .build();
             }
             default -> throw new BusinessException(ErrorCode.SYSTEM_ERROR,"不支持的代码生成类型: "+codeGenType.getValue());
