@@ -64,7 +64,7 @@ public class FileDeleteTool extends BaseTool{
     private boolean isImportantFile(String fileName){
         String[] importantFiles = {
                 "package.json","package-lock.json","yarn.lock","pnpm-lock.yaml",
-                "vite.config.js","vite.config.ts","vue.config.js",
+                "vite.RedissonConfig.js","vite.RedissonConfig.ts","vue.RedissonConfig.js",
                 "tsconfig.json","tsconfig.app.json","tsconfig.node.json",
                 "index.html","main.js","main.ts","App.vue",".gitignore","README.md"
         };

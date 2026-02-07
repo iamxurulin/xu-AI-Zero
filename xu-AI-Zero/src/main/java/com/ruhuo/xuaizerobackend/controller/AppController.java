@@ -19,6 +19,8 @@ import com.ruhuo.xuaizerobackend.model.entity.App;
 import com.ruhuo.xuaizerobackend.model.entity.User;
 import com.ruhuo.xuaizerobackend.model.enums.CodeGenTypeEnum;
 import com.ruhuo.xuaizerobackend.model.vo.AppVO;
+import com.ruhuo.xuaizerobackend.ratelimiter.annotation.RateLimit;
+import com.ruhuo.xuaizerobackend.ratelimiter.enums.RateLimitType;
 import com.ruhuo.xuaizerobackend.service.AppService;
 import com.ruhuo.xuaizerobackend.service.ProjectDownloadService;
 import com.ruhuo.xuaizerobackend.service.UserService;
@@ -65,6 +67,7 @@ public class AppController {
      * @return 生成结果流
      */
     @GetMapping(value = "/chat/gen/code",produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @RateLimit(limitType = RateLimitType.USER,rate = 5,rateInterval = 60,message = "AI对话请求过于频繁，请稍后再试")
     public Flux<ServerSentEvent<String>> chatToGenCode(@RequestParam Long appId, @RequestParam String message, HttpServletRequest request){
         //参数校验
         ThrowUtils.throwIf(appId==null||appId<=0,ErrorCode.PARAMS_ERROR,"应用ID无效");
