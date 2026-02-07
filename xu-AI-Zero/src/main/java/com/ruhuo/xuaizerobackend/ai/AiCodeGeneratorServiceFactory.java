@@ -148,6 +148,7 @@ public class AiCodeGeneratorServiceFactory {
                         ))
                         .inputGuardrails(new PromptSafetyInputGuardrail())//添加输入护轨
 //                        .outputGuardrails(new RetryOutputGuardrail())//添加输出护轨
+                        .maxSequentialToolsInvocations(10)//最多连续调用10次工具
                         .build();
             }
 
@@ -163,6 +164,7 @@ public class AiCodeGeneratorServiceFactory {
                         .chatMemory(chatMemory)
                         .inputGuardrails(new PromptSafetyInputGuardrail())//添加输入护轨
 //                        .outputGuardrails(new RetryOutputGuardrail())//添加输出护轨
+                        .maxSequentialToolsInvocations(10)//最多连续调用10次工具
                         .build();
             }
             default -> throw new BusinessException(ErrorCode.SYSTEM_ERROR,"不支持的代码生成类型: "+codeGenType.getValue());
