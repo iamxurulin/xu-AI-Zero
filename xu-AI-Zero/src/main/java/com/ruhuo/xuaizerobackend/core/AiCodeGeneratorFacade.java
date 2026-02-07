@@ -8,6 +8,8 @@ import com.ruhuo.xuaizerobackend.ai.model.MultiFileCodeResult;
 import com.ruhuo.xuaizerobackend.ai.model.message.AiResponseMessage;
 import com.ruhuo.xuaizerobackend.ai.model.message.ToolExecutedMessage;
 import com.ruhuo.xuaizerobackend.ai.model.message.ToolRequestMessage;
+import com.ruhuo.xuaizerobackend.constant.AppConstant;
+import com.ruhuo.xuaizerobackend.core.builder.VueProjectBuilder;
 import com.ruhuo.xuaizerobackend.core.parser.CodeParserExecutor;
 import com.ruhuo.xuaizerobackend.core.saver.CodeFileSaverExecutor;
 import com.ruhuo.xuaizerobackend.exception.BusinessException;
@@ -33,6 +35,9 @@ public class AiCodeGeneratorFacade {
     @Resource
     private AiCodeGeneratorServiceFactory aiCodeGeneratorServiceFactory;
 
+    @Resource
+    private VueProjectBuilder vueProjectBuilder;
+
     /**
      *
      *将 LangChain4j 的 TokenStream（基于回调机制）转换为 Spring WebFlux 的 Flux（基于响应式流机制），
@@ -41,7 +46,7 @@ public class AiCodeGeneratorFacade {
      * @param tokenStream TokenStream对象
      * @return Flux<String> 流式响应
      */
-    private Flux<String> processTokenStream(TokenStream tokenStream) {
+    private Flux<String> processTokenStream(TokenStream tokenStream,Long appId) {
         return Flux.create(sink -> {
             tokenStream.onPartialResponse((String partialResponse) -> {
                         AiResponseMessage aiResponseMessage = new AiResponseMessage(partialResponse);
@@ -56,6 +61,9 @@ public class AiCodeGeneratorFacade {
                         sink.next(JSONUtil.toJsonStr(toolExecutedMessage));
                     })
                     .onCompleteResponse((ChatResponse response) -> {
+                        //执行 Vue 项目构建（同步执行，确保预览时项目已就绪）
+                        String projectPath = AppConstant.CODE_OUTPUT_ROOT_DIR + File.separator + "vue_project_"+appId;
+                        vueProjectBuilder.buildProject(projectPath);
                         sink.complete();
                     })
                     .onError((Throwable error) -> {
@@ -176,7 +184,7 @@ public class AiCodeGeneratorFacade {
             }
             case VUE_PROJECT -> {
                 TokenStream tokenStream = aiCodeGeneratorService.generateVueProjectCodeStream(appId, userMessage);
-                yield processTokenStream(tokenStream);
+                yield processTokenStream(tokenStream,appId);
             }
             default -> {
                 // 兜底逻辑：如果加了新枚举但没写实现，这里会报错提醒你
