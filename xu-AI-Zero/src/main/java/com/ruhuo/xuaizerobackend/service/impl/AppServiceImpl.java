@@ -25,6 +25,8 @@ import com.ruhuo.xuaizerobackend.model.enums.ChatHistoryMessageTypeEnum;
 import com.ruhuo.xuaizerobackend.model.enums.CodeGenTypeEnum;
 import com.ruhuo.xuaizerobackend.model.vo.AppVO;
 import com.ruhuo.xuaizerobackend.model.vo.UserVO;
+import com.ruhuo.xuaizerobackend.monitor.MonitorContext;
+import com.ruhuo.xuaizerobackend.monitor.MonitorContextHolder;
 import com.ruhuo.xuaizerobackend.service.AppService;
 import com.ruhuo.xuaizerobackend.service.ChatHistoryService;
 import com.ruhuo.xuaizerobackend.service.ScreenshotService;
@@ -167,11 +169,23 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         //把用户的输入保存到数据库（聊天记录表）
         chatHistoryService.addChatMessage(appId, message, ChatHistoryMessageTypeEnum.USER.getValue(), loginUser.getId());
 
-        //6.调用AI生成代码（流式）
+        //6.设置监控上下文
+        MonitorContextHolder.setContext(
+                MonitorContext.builder()
+                        .userId(loginUser.getId().toString())
+                        .appId(appId.toString())
+                        .build()
+        );
+
+        //7.调用AI生成代码（流式）
         Flux<String> codeStream = aiCodeGeneratorFacade.generateAndSaveCodeStream(message, codeGenTypeEnum, appId);
 
-        //7.收集AI响应内容并在完成后记录到对话记录
-        return streamHandlerExecutor.doExecute(codeStream, chatHistoryService, appId, loginUser, codeGenTypeEnum);
+        //8.收集AI响应内容并在完成后记录到对话记录
+        return streamHandlerExecutor.doExecute(codeStream, chatHistoryService, appId, loginUser, codeGenTypeEnum)
+                .doFinally(signalType -> {
+                    //流结束时清理（无论成功/失败/取消）
+                    MonitorContextHolder.clearContext();
+                });
     }
 
     /**
