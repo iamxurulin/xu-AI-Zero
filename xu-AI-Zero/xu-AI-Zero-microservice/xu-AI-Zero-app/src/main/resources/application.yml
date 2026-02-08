@@ -1,6 +1,5 @@
 spring:
   application:
-    name: xu-AI-Zero-user
-
+    name: xu-AI-Zero-app
   profiles:
     active: local

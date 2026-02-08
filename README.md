@@ -332,3 +332,23 @@ modify:
 - config/ 和AI模型相关的配置
 
 - resources/prompt/提示词文件
+
+
+
+#### app应用服务
+
+- ai/ AI 服务工厂类(AiCodeGeneratorServiceFactory.java、AiCodeGenTypeRoutingServiceFactory.java)
+
+- config/ 缓存配置(RedisCacheManagerConfig.java)
+
+- controller/ 控制器层(AppController.java、ChatHistoryController.java、StaticResourceController.java)
+
+- core/ 代码生成核心代码
+
+- mapper/ 数据访问层(AppMapper.java、ChatHistoryMapper.java)
+
+- ratelimit/ 限流模块
+
+- service/ 业务服务层(AppService.java、ChatHistoryService.java、ProjectDownloadService.java及其实现类)
+
+- resources/mapper/ MyBatis映射文件
