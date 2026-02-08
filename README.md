@@ -314,3 +314,21 @@ modify:
 - service/UserService.java 和 service/impl/UserServiceImpl.java用户服务及实现类
 
 - mapper/UserMapper.java 和对应的resources目录下的 XML 文件
+
+
+
+#### AI代码生成模块
+
+- dev.langchain4j/ LangChain4j 源码修改
+
+- ai/guardrail/AI 护轨相关代码
+
+- ai/model/AI模型相关代码
+
+- ai/tools/AI工具相关代码
+
+- ai/所有 AI Service
+
+- config/ 和AI模型相关的配置
+
+- resources/prompt/提示词文件
