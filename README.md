@@ -352,3 +352,22 @@ modify:
 - service/ 业务服务层(AppService.java、ChatHistoryService.java、ProjectDownloadService.java及其实现类)
 
 - resources/mapper/ MyBatis映射文件
+
+
+
+
+#### screenshot网页截图服务
+
+- utils/WebScreenshotUtils.java 网页截图工具类
+
+- service/ScreenshotService.java 截图服务和实现类
+
+
+
+- Nacos + Dubbo服务间调用（user、app、screenshot）
+
+- Higress 微服务网关，修改前端vite为8080端口
+
+- app应用服务引入AOP 鉴权，防止未登录时调用管理员查询对话历史接口
+
+

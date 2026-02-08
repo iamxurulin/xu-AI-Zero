@@ -8,6 +8,7 @@ import com.ruhuo.xuaizerobackend.ratelimiter.annotation.RateLimit;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -16,7 +17,6 @@ import org.redisson.api.RRateLimiter;
 import org.redisson.api.RateIntervalUnit;
 import org.redisson.api.RateType;
 import org.redisson.api.RedissonClient;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -31,8 +31,7 @@ public class RateLimitAspect {
     @Resource
     private RedissonClient redissonClient;
 
-    @Resource
-    @Lazy
+    @DubboReference
     private InnerUserService userService;
 
     @Before("@annotation(rateLimit)")

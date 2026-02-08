@@ -1,6 +1,6 @@
 spring:
   application:
-    name: xu-AI-Zero-app
+    name: xu-AI-Zero-screenshot
 
   profiles:
     active: local

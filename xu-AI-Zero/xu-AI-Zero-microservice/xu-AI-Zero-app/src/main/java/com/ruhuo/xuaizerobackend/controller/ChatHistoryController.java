@@ -16,7 +16,7 @@ import com.ruhuo.xuaizerobackend.service.AppService;
 import com.ruhuo.xuaizerobackend.service.ChatHistoryService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.context.annotation.Lazy;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -38,8 +38,7 @@ public class ChatHistoryController {
     @Resource
     private AppService appService;
 
-    @Resource
-    @Lazy
+    @DubboReference
     private InnerUserService userService;
 
 
