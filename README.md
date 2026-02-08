@@ -263,3 +263,36 @@ modify:
 - 为防止AI陷入工具调用的无限循环，设置调用工具的次数上限
 
 - Prometheus + Grafana实现可视化业务监控
+
+
+
+### 微服务改造
+
+#### common公共模块
+
+- common/公共请求响应类(BaseResponse、ResultUtils等)
+
+- constant/常量
+
+- exception/异常处理
+
+- generator/代码生成器
+
+- utils/工具类(除 WebScreenshotUtils外)
+
+- config/配置类(JsonConfig、CorsConfig、CosClientConfig)
+
+- manager/通用能力(CosManager)
+
+- annotation/注解(AuthCheck)
+
+
+#### model实体模型模块
+
+- model/entity/ 实体类(User、App、ChatHistory)
+
+- model/dto/ 数据传输对象
+
+- model/vo/ 视图对象
+  
+- model/enums/ 枚举类
