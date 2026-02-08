@@ -303,3 +303,14 @@ modify:
 - 内部截图服务
 
 - 内部使用的用户服务
+
+
+#### user用户服务
+
+- aop/AuthInterceptor.java 权限拦截器
+
+- controller/UserController.java 用户控制器
+
+- service/UserService.java 和 service/impl/UserServiceImpl.java用户服务及实现类
+
+- mapper/UserMapper.java 和对应的resources目录下的 XML 文件
