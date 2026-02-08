@@ -296,3 +296,10 @@ modify:
 - model/vo/ 视图对象
   
 - model/enums/ 枚举类
+
+
+#### client服务接口模块
+
+- 内部截图服务
+
+- 内部使用的用户服务
