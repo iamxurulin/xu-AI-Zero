@@ -2,7 +2,7 @@
 
 ## 架构图
 
-![](E:\CodeRoad\xu-AI-Zero\Figure\架构图.jpg)
+![](./Figure/架构图.jpg)
 
 ### 后端
 
