@@ -1,5 +1,9 @@
 # AI_Zero_Code_Project
 
+## 架构图
+
+![](E:\CodeRoad\xu-AI-Zero\Figure\架构图.jpg)
+
 ### 后端
 
 - 后端初始化，在controller包下新建一个测试接口
