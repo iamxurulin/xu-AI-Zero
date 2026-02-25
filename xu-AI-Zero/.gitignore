@@ -2,7 +2,8 @@
 application-local.yml
 application-prod.yml
 tmp
-
+hs_err_pid*.log
+*.log
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
