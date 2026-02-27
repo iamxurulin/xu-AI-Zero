@@ -24,30 +24,34 @@ import org.springframework.context.annotation.Configuration;
 import javax.swing.*;
 import java.time.Duration;
 
+
 /**
- * 利用“声明式 AI 服务（Declarative AI Services）”特性，
- * 将定义的接口（Interface）动态变成一个可以直接调用的 AI 智能体对象。
+ * AI代码生成器服务工厂类
+ * 用于创建和管理不同类型的AI代码生成服务实例
  */
 @Configuration
 @Slf4j
-//告诉 Spring Boot，这是一个配置类（相当于一个工厂）
 public class AiCodeGeneratorServiceFactory {
+    // 注入OpenAI聊天模型
     @Resource(name = "openAiChatModel")
     private ChatModel chatModel;
 
+    // 注入Redis聊天内存存储
     @Resource
     private RedisChatMemoryStore redisChatMemoryStore;
 
+    // 注入聊天历史服务
     @Resource
     private ChatHistoryService chatHistoryService;
 
+    // 注入工具管理器
     @Resource
     private ToolManager toolManager;
     /**
      * AI 服务实例缓存
+     * 使用Caffeine实现高性能缓存
      *
      * 缓存策略：
-     *
      * - 最大缓存 1000 个实例
      * - 写入后 30 分钟过期
      * - 访问后 10 分钟过期

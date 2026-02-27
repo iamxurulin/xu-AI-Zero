@@ -24,14 +24,20 @@ public class AuthInterceptor {
 
     /**
      * 通用的权限拦截器
+     * 该拦截器用于处理带有@AuthCheck注解的方法，进行权限校验
      *
-     * @param joinPoint 切入点
-     * @param authCheck 权限校验注解
+     * @param joinPoint 切入点，包含方法调用的所有信息
+     * @param authCheck 权限校验注解，包含需要的权限信息
+     * @return 方法执行结果
+     * @throws Throwable 可能抛出的异常
      */
     @Around("@annotation(authCheck)")
     public Object doInterceptor(ProceedingJoinPoint joinPoint, AuthCheck authCheck)throws Throwable{
+        // 从注解中获取需要的权限
         String mustRole = authCheck.mustRole();
+        // 获取当前请求的属性
         RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
+        // 从请求属性中获取HttpServletRequest对象
         HttpServletRequest request = ((ServletRequestAttributes)requestAttributes).getRequest();
 
         //当前登录用户

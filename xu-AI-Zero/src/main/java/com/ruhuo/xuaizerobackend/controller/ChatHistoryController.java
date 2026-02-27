@@ -40,41 +40,37 @@ import java.util.stream.Collectors;
  * @author <a href="https://github.com/iamxurulin">iamxurulin</a>
  */
 @RestController
-@RequestMapping("/chatHistory")
+@RequestMapping("/chatHistory")  // 设置基础请求路径为 "/chatHistory"
 public class ChatHistoryController {
 
-    @Resource
+    @Resource  // 自动注入 ChatHistoryService 实例
     private ChatHistoryService chatHistoryService;
 
-    @Resource
+    @Resource  // 自动注入 AppService 实例
     private AppService appService;
 
-    @Resource
+    @Resource  // 自动注入 UserService 实例
     private UserService userService;
 
-
     /**
-     * 管理员分页查询所有对话历史
-     *
-     * 给管理员用的“全站聊天记录分页查询接口”，
-     * 管理员可以根据各种条件（用户、应用、关键词、时间等）查全平台的聊天记录，
-     * 支持普通分页（pageNum + pageSize），
-     * 并且必须是 admin 角色才能访问
-     *
-     * @param chatHistoryQueryRequest 查询请求
-     * @return 对话历史分页
-     *
+     * 管理员分页查询聊天记录接口
+     * @param chatHistoryQueryRequest 查询条件请求对象
+     * @return 返回分页查询结果，包含聊天历史记录列表
+     * @AuthCheck(mustRole = UserConstant.ADMIN_ROLE) 表示只有管理员角色可以访问此接口
      */
     @PostMapping("/admin/list/page/vo")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<ChatHistory>> listAllChatHistoryByPageForAdmin(@RequestBody ChatHistoryQueryRequest chatHistoryQueryRequest){
+        // 检查查询请求参数是否为空，为空则抛出参数错误异常
         ThrowUtils.throwIf(chatHistoryQueryRequest==null, ErrorCode.PARAMS_ERROR);
+        // 获取分页参数：页码和每页大小
         int pageNum = chatHistoryQueryRequest.getPageNum();
         int pageSize = chatHistoryQueryRequest.getPageSize();
 
-        //查询数据
+        //查询数据：根据查询条件构建QueryWrapper，进行分页查询
         QueryWrapper queryWrapper = chatHistoryService.getQueryWrapper(chatHistoryQueryRequest);
         Page<ChatHistory> result = chatHistoryService.page(Page.of(pageNum, pageSize), queryWrapper);
+        // 返回查询成功结果
         return ResultUtils.success(result);
     }
 
@@ -84,20 +80,19 @@ public class ChatHistoryController {
      * 前端点开某个 AI 应用的聊天记录页面，
      * 后端这个接口负责把该应用的聊天记录按时间倒序分页返回给前端（支持“加载更多”功能），
      * 同时确保只有有权限的人才能查到。
-     *
-     * @param appId 应用ID
-     * @param pageSize 页面大小
-     * @param lastCreateTime 最后一条记录的创建时间
-     * @param request 请求
-     * @return 对话历史分页
+     * @param appId 应用ID，从路径变量中获取
+     * @param pageSize 每页大小，默认值为10
+     * @param lastCreateTime 最后创建时间，用于分页查询，非必需参数
+     * @param request HTTP请求对象，用于获取当前登录用户信息
+     * @return 返回包含聊天历史记录分页结果的BaseResponse
      */
     @GetMapping("/app/{appId}")
-    public BaseResponse<Page<ChatHistory>> listAppChatHistory(@PathVariable Long appId,
-                                                              @RequestParam(defaultValue = "10") int pageSize,
-                                                              @RequestParam(required = false) LocalDateTime lastCreateTime,
-                                                              HttpServletRequest request){
-        User loginUsr = userService.getLoginUser(request);
-        Page<ChatHistory> result = chatHistoryService.listAppChatHistoryByPage(appId,pageSize,lastCreateTime,loginUsr);
-        return ResultUtils.success(result);
+    public BaseResponse<Page<ChatHistory>> listAppChatHistory(@PathVariable Long appId, // 应用ID路径变量
+                                                              @RequestParam(defaultValue = "10") int pageSize, // 每页大小参数，默认10
+                                                              @RequestParam(required = false) LocalDateTime lastCreateTime, // 最后创建时间参数，非必需
+                                                              HttpServletRequest request){ // HTTP请求对象
+        User loginUsr = userService.getLoginUser(request); // 获取当前登录用户
+        Page<ChatHistory> result = chatHistoryService.listAppChatHistoryByPage(appId,pageSize,lastCreateTime,loginUsr); // 分页查询应用聊天历史
+        return ResultUtils.success(result); // 返回成功响应，包含查询结果
     }
 }

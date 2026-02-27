@@ -12,12 +12,12 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * 腾讯云 COS 配置类
- *
+ * 用于配置和初始化腾讯云对象存储服务(COS)的客户端
  */
 
-@Configuration
-@ConfigurationProperties(prefix = "cos.client")
-@Data
+@Configuration // 标识该类为配置类，用于定义Bean
+@ConfigurationProperties(prefix = "cos.client") // 绑定配置文件中以"cos.client"为前缀的属性
+@Data // Lombok注解，自动生成getter、setter、toString等方法
 public class CosClientConfig {
     /**
      * 域名
