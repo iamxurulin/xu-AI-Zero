@@ -6,10 +6,21 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
+/**
+ * Vue项目构建器类
+ * 负责构建Vue项目的核心逻辑，包括执行npm命令、检查项目目录、异步构建等功能
+ */
 @Slf4j
 @Component
 public class VueProjectBuilder {
 
+    /**
+     * 在指定工作目录中执行命令
+     * @param workingDir 工作目录
+     * @param command 要执行的命令
+     * @param timeoutSeconds 命令执行超时时间（秒）
+     * @return 命令执行成功返回true，失败返回false
+     */
     private boolean executeCommand(File workingDir,String command,int timeoutSeconds){
         try{
             log.info("在目录{}中执行命令:{}",workingDir.getAbsolutePath(),command);
@@ -38,8 +49,8 @@ public class VueProjectBuilder {
 
     /**
      * 执行 npm install 命令
-     * @param projectDir
-     * @return
+     * @param projectDir 项目目录
+     * @return 执行成功返回true，失败返回false
      */
     private boolean executeNpmInstall(File projectDir){
         log.info("执行 npm install...");
@@ -49,8 +60,8 @@ public class VueProjectBuilder {
 
     /**
      * 执行 npm run build 命令
-     * @param projectDir
-     * @return
+     * @param projectDir 项目目录
+     * @return 执行成功返回true，失败返回false
      */
     private boolean executeNpmBuild(File projectDir){
         log.info("执行 npm run build...");
@@ -58,10 +69,19 @@ public class VueProjectBuilder {
         return executeCommand(projectDir,command,180);//3分钟超时
     }
 
+    /**
+     * 判断当前系统是否为Windows系统
+     * @return 如果是Windows系统返回true，否则返回false
+     */
     private boolean isWindows(){
         return System.getProperty("os.name").toLowerCase().contains("windows");
     }
 
+    /**
+     * 根据操作系统类型构建命令
+     * @param baseCommand 基础命令
+     * @return 适配当前操作系统的完整命令
+     */
     private String buildCommand(String baseCommand){
         if(isWindows()){
             return baseCommand + ".cmd";
@@ -69,6 +89,11 @@ public class VueProjectBuilder {
         return baseCommand;
     }
 
+    /**
+     * 构建Vue项目
+     * @param projectPath 项目路径
+     * @return 构建成功返回true，失败返回false
+     */
     public boolean buildProject(String projectPath){
         File projectDir = new File(projectPath);
         if(!projectDir.exists()||!projectDir.isDirectory()){
@@ -109,6 +134,7 @@ public class VueProjectBuilder {
 
     /**
      * 异步构建项目（不阻塞主流程）
+     * 使用虚拟线程在后台执行构建任务，不会阻塞主流程
      *
      * @param projectPath 项目路径
      */

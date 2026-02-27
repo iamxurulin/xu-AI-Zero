@@ -1,0 +1,37 @@
+@startuml ChatHistoryController
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Microsoft YaHei
+skinparam defaultFontSize 16
+skinparam defaultFontStyle bold
+skinparam ArrowFontSize 14
+
+start
+
+switch (请求类型)
+
+case (管理员分页查询)
+    if (请求参数为空?) then (是)
+        :返回参数错误;
+        stop
+    else (否)
+        :获取分页参数;
+        :构建查询条件;
+        :执行分页查询;
+        :返回聊天记录列表;
+        stop
+    endif
+
+case (查询应用对话历史)
+    :获取当前登录用户;
+    if (用户未登录?) then (是)
+        :返回未登录错误;
+        stop
+    else (否)
+        :分页查询应用聊天历史;
+        :返回对话记录;
+        stop
+    endif
+
+endswitch
+
+@enduml

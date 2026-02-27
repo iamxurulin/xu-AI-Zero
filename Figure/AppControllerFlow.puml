@@ -1,0 +1,81 @@
+@startuml AppController
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Microsoft YaHei
+skinparam defaultFontStyle bold
+
+start
+
+switch (请求类型)
+
+case (下载代码)
+    :参数校验
+    验证应用ID和权限;
+    :获取当前登录用户;
+    :检查代码目录是否存在;
+    if (存在) then (是)
+        :调用服务下载代码
+        返回ZIP文件;
+    else (否)
+        :抛出异常
+        代码不存在;
+    endif
+    stop
+
+case (代码生成)
+    :参数校验
+    验证应用ID和消息;
+    :获取当前登录用户;
+    :调用服务生成代码
+    流式返回结果;
+    stop
+
+case (应用部署)
+    :参数校验
+    验证应用ID;
+    :获取当前登录用户;
+    :调用服务部署应用
+    返回部署URL;
+    stop
+
+case (添加应用)
+    :参数校验
+    验证应用信息;
+    :获取当前登录用户;
+    :调用服务创建应用
+    返回应用ID;
+    stop
+
+case (更新应用)
+    :参数校验
+    验证应用ID和权限;
+    :获取当前登录用户;
+    :调用服务更新应用
+    返回更新结果;
+    stop
+
+case (删除应用)
+    :参数校验
+    验证应用ID和权限;
+    :获取当前登录用户;
+    :调用服务删除应用
+    返回删除结果;
+    stop
+
+case (查询应用)
+    :参数校验
+    验证查询条件;
+    :获取当前登录用户
+    (仅我的应用);
+    :调用服务查询应用
+    返回应用列表;
+    stop
+
+case (管理员操作)
+    :验证管理员权限;
+    :调用服务执行操作
+    返回操作结果;
+    stop
+
+endswitch
+
+@enduml

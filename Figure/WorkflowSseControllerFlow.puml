@@ -1,0 +1,71 @@
+@startuml WorkflowSseController
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Microsoft YaHei
+skinparam defaultFontSize 16
+skinparam defaultFontStyle bold
+skinparam ArrowFontSize 14
+
+start
+
+switch (请求类型)
+
+case (同步执行\nPOST /execute)
+    :参数校验
+    验证prompt参数;
+    if (prompt为空?) then (是)
+        :返回参数错误
+        prompt不能为空;
+        stop
+    else (否)
+        :记录请求日志
+        收到同步工作流执行请求;
+        :创建工作流实例
+        new CodeGenWorkflow();
+        :同步执行工作流
+        executeWorkflow(prompt);
+        :返回完整结果
+        WorkflowContext;
+        stop
+    endif
+
+case (Flux流式执行\nGET /execute-flux)
+    :参数校验
+    验证prompt参数;
+    if (prompt为空?) then (是)
+        :返回参数错误
+        prompt不能为空;
+        stop
+    else (否)
+        :记录请求日志
+        收到Flux工作流执行请求;
+        :创建工作流实例
+        new CodeGenWorkflow();
+        :Flux流式执行
+        executeWorkflowWithFlux(prompt);
+        :流式返回结果
+        Flux<String>;
+        stop
+    endif
+
+case (SSE流式执行\nGET /execute-sse)
+    :参数校验
+    验证prompt参数;
+    if (prompt为空?) then (是)
+        :返回参数错误
+        prompt不能为空;
+        stop
+    else (否)
+        :记录请求日志
+        收到SSE工作流执行请求;
+        :创建工作流实例
+        new CodeGenWorkflow();
+        :SSE流式执行
+        executeWorkflowWithSse(prompt);
+        :流式返回结果
+        SseEmitter;
+        stop
+    endif
+
+endswitch
+
+@enduml
