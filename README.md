@@ -1,12 +1,12 @@
 # AI_Zero_Code_Project
 
-### 架构图
+## 架构图
 
 ![](./Figure/架构图.jpg)
 
 ### 应用层接口流程图
 
-![](./Figure/应用层接口.jpg)
+![](./Figure/应用层接口.png)
 
 ### 用户层接口流程图
 
@@ -20,7 +20,12 @@
 
 ![](./Figure/工作流接口.png)
 
-### 后端
+### AI代码生成器门面类流程图
+
+![](./Figure/AiCodeGeneratorFacade.png)
+
+
+## 后端
 
 - 后端初始化，在controller包下新建一个测试接口
 
@@ -30,12 +35,12 @@
 - 完成用户注册功能
 
 
-### 前端
+## 前端
 
 - 前端项目初始化完成，初始页面形成
 
 
-### 后端
+## 后端
 
 完成如下功能：
 
@@ -55,7 +60,7 @@ fix:
 
 
 
-### 前端
+## 前端
 
 完成如下页面的开发：
 
@@ -69,7 +74,7 @@ fix:
 - 【用户权限控制】
 
 
-### 后端
+## 后端
 
 - 完成原生模式AI应用生成的开发
 
@@ -106,7 +111,7 @@ fix:
 
 
 
-### 前端
+## 前端
 
 使用Cursor结合Vibe Coding实现以下功能：
 
@@ -122,7 +127,7 @@ fix:
 
 
 
-### 对话历史后端开发：
+## 对话历史后端开发：
 
 使用Cursor结合Vibe Coding以及MyBatis Flex实现以下功能：
 
@@ -133,7 +138,7 @@ fix:
 
 
 
-### 对话历史前端开发
+## 对话历史前端开发
 
 使用Cursor结合Vibe Coding实现以下功能：
 
@@ -158,7 +163,7 @@ fix:
 - 加载时自动请求
 - 错误处理
 
-### 对话记忆后端开发
+## 对话记忆后端开发
 
 配置Redis，给AI服务方法增加memoryId注解和参数，通过chatMeomryProvider为每个appId分配对话记忆。
 
@@ -176,7 +181,7 @@ fix：
 
 
 
-### 后端
+## 后端
 
 - 1.新增 Vue 工程推理流式模型的配置
 
@@ -196,11 +201,11 @@ fix：
 
 - 9.支持 Vue 项目的部署
 
-### 前端
+## 前端
 
 - 新增 Vue 工程模式
 
-### 后端
+## 后端
 
 - 1.实现本地生成应用封面截图
 
@@ -214,7 +219,7 @@ fix：
 - 完成【AI智能选择方案】（html、多文件、Vue工程模式）的前后端开发
 
 
-### 前端
+## 前端
 
 - 结合Vibe Coding新增可视化编辑工具文件visualEditor.ts
 
@@ -224,7 +229,7 @@ fix：
 
 - 实现原生html模式和原生多文件模式的全量可视化修改
 
-### 后端
+## 后端
 
 - 通过策略模式的思路，实现并优化了
 【文件删除工具】、【文件目录读取工具】、【文件修改工具】、【文件读取工具】、【文件写入工具】、【工具管理类】
@@ -232,7 +237,7 @@ fix：
 - 实现Vue工程模式的增量可视化修改
 
 
-### 后端
+## 后端
 实现以下工具：
 
 - 内容图片收集工具
@@ -268,7 +273,7 @@ modify:
 代码生成节点、工作流增加质量检查
 
 
-### 优化
+## 优化
 
 - 采用多例模式实现AI并发调用
 
@@ -286,9 +291,9 @@ modify:
 
 
 
-### 微服务改造
+## 微服务改造
 
-#### common公共模块
+### common公共模块
 
 - common/公共请求响应类(BaseResponse、ResultUtils等)
 
@@ -307,7 +312,7 @@ modify:
 - annotation/注解(AuthCheck)
 
 
-#### model实体模型模块
+### model实体模型模块
 
 - model/entity/ 实体类(User、App、ChatHistory)
 
@@ -318,14 +323,14 @@ modify:
 - model/enums/ 枚举类
 
 
-#### client服务接口模块
+### client服务接口模块
 
 - 内部截图服务
 
 - 内部使用的用户服务
 
 
-#### user用户服务
+### user用户服务
 
 - aop/AuthInterceptor.java 权限拦截器
 
@@ -337,7 +342,7 @@ modify:
 
 
 
-#### AI代码生成模块
+### AI代码生成模块
 
 - dev.langchain4j/ LangChain4j 源码修改
 
@@ -355,7 +360,7 @@ modify:
 
 
 
-#### app应用服务
+### app应用服务
 
 - ai/ AI 服务工厂类(AiCodeGeneratorServiceFactory.java、AiCodeGenTypeRoutingServiceFactory.java)
 
@@ -376,7 +381,7 @@ modify:
 
 
 
-#### screenshot网页截图服务
+### screenshot网页截图服务
 
 - utils/WebScreenshotUtils.java 网页截图工具类
 

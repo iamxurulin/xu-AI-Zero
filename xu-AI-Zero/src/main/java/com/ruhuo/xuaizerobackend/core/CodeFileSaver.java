@@ -11,16 +11,21 @@ import com.ruhuo.xuaizerobackend.model.enums.CodeGenTypeEnum;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * CodeFileSaver 类用于保存代码生成结果到文件系统中
+ * 提供了保存HTML代码和多文件代码结果的方法
+ */
 public class CodeFileSaver {
-    /**
-     * System.getProperty("user.dir")：获取当前 Java 项目的根目录。
-     * /tmp/code_output：在项目根目录下创建一个临时文件夹。
-     */
 
+
+    // 定义文件保存的根目录路径，使用系统当前工作目录下的/tmp/code_output目录
     private static final String FILE_SAVE_ROOT_DIR = System.getProperty("user.dir")+"/tmp/code_output";
 
+
     /**
-     * 保存HtmlCodeResult
+     * 保存HTML代码结果
+     * @param result 包含HTML代码的结果对象
+     * @return 保存了HTML文件的File对象
      */
     public static File saveHtmlCodeResult(HtmlCodeResult result){
         // 1. 创建一个唯一的文件夹
@@ -33,8 +38,11 @@ public class CodeFileSaver {
         return new File(baseDirPath);
     }
 
+
     /**
-     * 保存MultiFileCodeResult
+     * 保存多文件代码结果（HTML、CSS、JS）
+     * @param result 包含HTML、CSS、JS代码的结果对象
+     * @return 保存了多文件的File对象
      */
     public static File saveMultiFileCodeResult(MultiFileCodeResult result){
         //1. 创建一个唯一的文件夹，
@@ -49,8 +57,12 @@ public class CodeFileSaver {
         return new File(baseDirPath);
     }
 
+
     /**
-     * 构建唯一目录路径：tmp/code_output/bizType_雪花ID
+     * 构建唯一的目录路径
+     * 使用雪花算法生成唯一ID，确保每个目录都是唯一的
+     * @param bizType 业务类型标识
+     * @return 唯一的目录路径
      */
     private static String buildUniqueDir(String bizType){
         // 雪花算法 (Snowflake ID)
@@ -63,10 +75,15 @@ public class CodeFileSaver {
         return dirPath;
     }
 
+
     /**
-     * 写入单个文件
+     * 将指定内容写入到文件中
+     * @param dirPath 文件所在目录路径
+     * @param filename 文件名
+     * @param content 要写入的内容
      */
     private static void writeToFile(String dirPath,String filename,String content){
+        // 拼接完整的文件路径，使用系统相关的路径分隔符
         String filePath = dirPath + File.separator + filename;
         // 使用 UTF-8 编码写入，防止中文乱码
         FileUtil.writeString(content,filePath, StandardCharsets.UTF_8);
