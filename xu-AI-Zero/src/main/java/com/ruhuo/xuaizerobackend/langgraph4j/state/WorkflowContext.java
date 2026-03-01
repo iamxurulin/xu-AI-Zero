@@ -85,34 +85,47 @@ public class WorkflowContext implements Serializable {
     private ImageCollectionPlan imageCollectionPlan;
 
     /**
-     * 并发图片收集的中间结果字段
+     * 图像资源集合类
+     * 用于存储和管理不同类型的图像资源
      */
-    private List<ImageResource> contentImages;
+    private List<ImageResource> contentImages; // 内容相关图片资源列表
 
-    private List<ImageResource> illustrations;
+    private List<ImageResource> illustrations; // 插图资源列表
 
+    // 存储图表资源的列表
     private List<ImageResource> diagrams;
 
+    // 存储标志资源的列表
     private List<ImageResource> logos;
 
 
+    // 序列化版本标识符，用于序列化和反序列化过程中的版本控制
     @Serial
-    private static  final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     //=======================上下文操作方法=============
 
     /**
-     * 从 MessagesState 中获取 WorkflowContext
+     * 从MessagesState中获取WorkflowContext对象
+     * 该方法通过WORKFLOW_CONTEXT_KEY作为键，从state的data映射中获取对应的WorkflowContext值
+     *
+     * @param state 包含工作流状态信息的MessagesState对象，其data字段存储了各种状态信息
+     * @return 返回从state中获取的WorkflowContext对象，它是工作流执行过程中的上下文信息
      */
-
-    public static WorkflowContext getContext(MessagesState<String> state){
+    public static WorkflowContext getContext(MessagesState<String> state) {
+        // 通过WORKFLOW_CONTEXT_KEY键从state的data映射中获取WorkflowContext对象
         return (WorkflowContext) state.data().get(WORKFLOW_CONTEXT_KEY);
     }
 
     /**
-     * 将WorkflowContext 保存到 MessagesState中
+     * 该方法用于创建一个包含工作流上下文的Map对象
+     *
+     * @param context WorkflowContext类型的对象，包含工作流的相关上下文信息
+     * @return 返回一个Map对象，其中键为WORKFLOW_CONTEXT_KEY，值为传入的context对象
      */
-    public static Map<String,Object> saveContext(WorkflowContext context){
-        return Map.of(WORKFLOW_CONTEXT_KEY,context);
+    public static Map<String, Object> saveContext(WorkflowContext context) {
+        // 使用Java 10+引入的不可变Map工厂方法创建一个只包含单个键值对的Map
+        // WORKFLOW_CONTEXT_KEY作为键，context对象作为值
+        return Map.of(WORKFLOW_CONTEXT_KEY, context);
     }
 }

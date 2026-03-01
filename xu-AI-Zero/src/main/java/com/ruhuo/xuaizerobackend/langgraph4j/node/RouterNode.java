@@ -10,28 +10,45 @@ import org.bsc.langgraph4j.prebuilt.MessagesState;
 
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 
+/**
+ * 路由节点类，用于根据原始提示词智能选择代码生成类型
+ * 使用@Slf4j注解进行日志记录
+ */
 @Slf4j
 public class RouterNode {
+    /**
+     * 创建一个异步节点动作，用于执行智能路由逻辑
+     * @return 返回一个AsyncNodeAction，处理MessagesState<String>类型的状态
+     */
     public static AsyncNodeAction<MessagesState<String>> create(){
         return node_async(state->{
+            // 从状态中获取工作流上下文
             WorkflowContext context = WorkflowContext.getContext(state);
+            // 记录执行日志
             log.info("执行节点：智能路由");
 
+            // 声明代码生成类型变量
             CodeGenTypeEnum generationType;
             try{
-                //获取AI路由服务
+                //获取AI路由服务Bean
                 AiCodeGenTypeRoutingService routingService = SpringContextUtil.getBean(AiCodeGenTypeRoutingService.class);
 
-                //根据原始提示词进行智能路由
+                //根据原始提示词进行智能路由，选择合适的代码生成类型
                 generationType = routingService.routeCodeGenType(context.getOriginalPrompt());
+                // 记录路由结果日志
                 log.info("AI智能路由完成，选择类型：{} ({})",generationType.getValue(),generationType.getText());
             }catch (Exception e){
+                // 异常处理：路由失败时使用默认HTML类型并记录错误日志
                 log.error("AI 智能路由失败，使用默认HTML类型：{}",e.getMessage());
+                // 设置代码生成的类型为HTML
                 generationType = CodeGenTypeEnum.HTML;
             }
-            //更新状态
+
+            // 设置当前步骤为"智能路由"
             context.setCurrentStep("智能路由");
+            // 设置生成类型
             context.setGenerationType(generationType);
+            // 保存工作流上下文并返回结果
             return WorkflowContext.saveContext(context);
         });
     }

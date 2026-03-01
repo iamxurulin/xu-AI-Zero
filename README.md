@@ -22,7 +22,12 @@
 
 ### AI代码生成器门面类流程图
 
-![](./Figure/AiCodeGeneratorFacade.png)
+![](./Figure/并发代码生成工作流.png)
+
+### 代码生成工作流
+![](./Figure/代码生成工作流.png)
+
+### 代码生成工作流
 
 
 ## 后端
