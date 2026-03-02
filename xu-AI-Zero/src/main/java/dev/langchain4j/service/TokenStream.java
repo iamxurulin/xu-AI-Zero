@@ -10,74 +10,77 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+
 /**
- * Represents a token stream from the model to which you can subscribe and receive updates
- * when a new partial response (usually a single token) is available,
- *  when the model finishes streaming, or when an error occurs during streaming.
- * It is intended to be used as a return type in AI Service.
+ * TokenStream接口定义了一个用于处理令牌流的API，主要用于处理聊天响应和工具执行请求。
+ * 该接口提供了多种事件处理方法，允许用户对不同的事件做出响应。
  */
 public interface TokenStream {
 
+
     /**
-     * The provided consumer will be invoked every time a new partial response (usually a single token)
-     * from a language model is available.
-     *
-     * @param partialResponseHandler lambda that will be invoked when a model generates a new partial response
-     * @return token stream instance used to configure or start stream processing
+     * 设置部分响应的处理程序
+     * @param partialResponseHandler 用于处理部分响应的消费者函数
+     * @return 返回当前TokenStream实例，以支持链式调用
      */
     TokenStream onPartialResponse(Consumer<String> partialResponseHandler);
 
+    /**
+     * 设置部分工具执行请求的处理程序
+     * @param toolExecutionRequestHandler 用于处理部分工具执行请求的双消费者函数，接收索引和请求对象
+     * @return 返回当前TokenStream实例，以支持链式调用
+     */
     TokenStream onPartialToolExecutionRequest(BiConsumer<Integer, ToolExecutionRequest> toolExecutionRequestHandler);
 
+    /**
+     * 设置完成工具执行请求的处理程序
+     * @param completedHandler 用于处理完成工具执行请求的双消费者函数，接收索引和请求对象
+     * @return 返回当前TokenStream实例，以支持链式调用
+     */
     TokenStream onCompleteToolExecutionRequest(BiConsumer<Integer, ToolExecutionRequest> completedHandler);
 
+
     /**
-     * The provided consumer will be invoked if any {@link Content}s are retrieved using {@link RetrievalAugmentor}.
-     * <p>
-     * The invocation happens before any call is made to the language model.
-     *
-     * @param contentHandler lambda that consumes all retrieved contents
-     * @return token stream instance used to configure or start stream processing
+     * 设置检索内容的处理程序
+     * @param contentHandler 用于处理检索内容的消费者函数，接收内容列表
+     * @return 返回当前TokenStream实例，以支持链式调用
      */
     TokenStream onRetrieved(Consumer<List<Content>> contentHandler);
 
+
     /**
-     * The provided consumer will be invoked if any tool is executed.
-     * <p>
-     * The invocation happens after the tool method has finished and before any other tool is executed.
-     *
-     * @param toolExecuteHandler lambda that consumes {@link ToolExecution}
-     * @return token stream instance used to configure or start stream processing
+     * 设置工具执行完成后的处理程序
+     * @param toolExecuteHandler 用于处理工具执行完成的消费者函数，接收执行结果
+     * @return 返回当前TokenStream实例，以支持链式调用
      */
     TokenStream onToolExecuted(Consumer<ToolExecution> toolExecuteHandler);
 
+
     /**
-     * The provided handler will be invoked when a language model finishes streaming a response.
-     *
-     * @param completeResponseHandler lambda that will be invoked when language model finishes streaming
-     * @return token stream instance used to configure or start stream processing
+     * 设置完整响应的处理程序
+     * @param completeResponseHandler 用于处理完整响应的消费者函数，接收聊天响应对象
+     * @return 返回当前TokenStream实例，以支持链式调用
      */
     TokenStream onCompleteResponse(Consumer<ChatResponse> completeResponseHandler);
 
+
     /**
-     * The provided consumer will be invoked when an error occurs during streaming.
-     *
-     * @param errorHandler lambda that will be invoked when an error occurs
-     * @return token stream instance used to configure or start stream processing
+     * 设置错误处理程序
+     * @param errorHandler 用于处理错误的消费者函数，接收可抛出对象
+     * @return 返回当前TokenStream实例，以支持链式调用
      */
     TokenStream onError(Consumer<Throwable> errorHandler);
 
+
     /**
-     * All errors during streaming will be ignored (but will be logged with a WARN log level).
-     *
-     * @return token stream instance used to configure or start stream processing
+     * 忽略所有错误
+     * @return 返回当前TokenStream实例，以支持链式调用
      */
     TokenStream ignoreErrors();
 
+
     /**
-     * Completes the current token stream building and starts processing.
-     * <p>
-     * Will send a request to LLM and start response streaming.
+     * 开始处理令牌流
      */
     void start();
 }

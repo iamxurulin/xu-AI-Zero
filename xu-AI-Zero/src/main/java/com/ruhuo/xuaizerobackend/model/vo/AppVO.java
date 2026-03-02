@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 /**
  * 应用视图对象
+ * 用于封装应用相关的数据，用于前端展示或数据传输
  *
  * @author <a href="https://github.com/iamxurulin">iamxurulin</a>
  */

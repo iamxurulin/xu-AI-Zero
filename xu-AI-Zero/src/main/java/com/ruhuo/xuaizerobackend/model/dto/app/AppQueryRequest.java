@@ -8,11 +8,12 @@ import java.io.Serializable;
 
 /**
  * 应用查询请求
+ * 继承自PageRequest并实现Serializable接口，用于应用列表查询时的参数封装
  *
  * @author <a href="https://github.com/iamxurulin">iamxurulin</a>
  */
-@EqualsAndHashCode(callSuper = true)
-@Data
+@EqualsAndHashCode(callSuper = true)  // 使用lombok注解，生成equals和hashCode方法时包含父类字段
+@Data  // 使用lombok注解，自动生成getter、setter、toString等方法
 public class AppQueryRequest extends PageRequest implements Serializable {
     /**
      * id

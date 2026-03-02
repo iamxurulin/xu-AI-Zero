@@ -4,6 +4,11 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * 登录用户视图对象（VO）
+ * 用于封装登录成功后返回给前端的相关用户信息
+ * 使用@Data注解自动生成getter、setter、toString等方法
+ */
 @Data
 public class LoginUserVO {
     /**

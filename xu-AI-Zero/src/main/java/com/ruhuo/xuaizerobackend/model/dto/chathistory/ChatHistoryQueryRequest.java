@@ -10,11 +10,11 @@ import java.time.LocalDateTime;
 /**
  * 对话历史查询请求（分页）
  *
- * 查询请求参数封装类（Query Request DTO）
+ * 继承自PageRequest，提供分页查询功能
  *
  */
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Data // Lombok注解，自动生成getter、setter等方法
+@EqualsAndHashCode(callSuper = true) // Lombok注解，生成equals和hashCode方法时包含父类字段
 public class ChatHistoryQueryRequest extends PageRequest implements Serializable {
 
     /**

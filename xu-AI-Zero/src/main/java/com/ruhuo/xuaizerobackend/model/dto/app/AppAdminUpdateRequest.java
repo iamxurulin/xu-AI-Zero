@@ -6,11 +6,12 @@ import java.io.Serializable;
 
 /**
  * 应用更新请求
+ * 这是一个用于应用更新操作的请求类，实现了Serializable接口以支持序列化
  *
  * @author <a href="https://github.com/iamxurulin">iamxurulin</a>
  */
-@Data
-public class AppAdminUpdateRequest implements Serializable {
+@Data  // Lombok注解，自动生成getter、setter等方法
+public class AppAdminUpdateRequest implements Serializable {  // 实现Serializable接口以支持序列化
 
     /**
      * id

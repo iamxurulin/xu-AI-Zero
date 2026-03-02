@@ -4,6 +4,11 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * 用户更新请求DTO类
+ * 用于封装用户更新请求的数据
+ * 实现Serializable接口以支持序列化
+ */
 @Data
 public class UserUpdateRequest implements Serializable {
     /**

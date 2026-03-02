@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 /**
  * 专门展示给前端看的“脱敏”用户信息
  */
-@Data
-public class UserVO implements Serializable {
+@Data // 使用Lombok的@Data注解，自动生成getter、setter、toString等方法
+public class UserVO implements Serializable { // UserVO类，实现Serializable接口，支持序列化
     /**
      * id
      */

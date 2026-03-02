@@ -17,18 +17,21 @@ import lombok.NoArgsConstructor;
 
 /**
  * 用户 实体类。
+ * 该类使用Lombok注解简化了getter、setter、toString等方法的编写。
+ * 使用了Builder模式构建对象，并提供了无参和全参构造方法。
+ * 实现了Serializable接口以支持序列化操作。
  *
  * @author <a href="https://github.com/iamxurulin">iamxurulin</a>
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Table("user")
-public class User implements Serializable {
+@Data // Lombok注解：自动生成getter、setter、toString、equals、hashCode等方法
+@Builder // Lombok注解：提供Builder模式构建对象
+@NoArgsConstructor // Lombok注解：生成无参构造方法
+@AllArgsConstructor // Lombok注解：生成包含所有字段参数的构造方法
+@Table("user") // 指定对应的数据库表名为"user"
+public class User implements Serializable { // 实现Serializable接口以支持序列化
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+    @Serial // Java 17+注解：标识序列化相关字段
+    private static final long serialVersionUID = 1L; // 序列化版本号，用于版本控制
 
     /**
      * id

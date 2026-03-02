@@ -17,27 +17,32 @@ import lombok.NoArgsConstructor;
 
 /**
  * 应用 实体类。
+ * 该类用于存储应用的基本信息，包括应用名称、封面、初始化prompt等。
+ * 使用了Lombok注解简化代码，包括@Data、@Builder、@NoArgsConstructor和@AllArgsConstructor。
+ * 实现了Serializable接口以支持序列化。
  *
  * @author <a href="https://github.com/iamxurulin">iamxurulin</a>
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Table("app")
-public class App implements Serializable {
+@Data // 生成getter、setter、toString、equals和hashCode方法
+@Builder // 提供Builder模式的构建方法
+@NoArgsConstructor // 生成无参构造方法
+@AllArgsConstructor // 生成包含所有参数的构造方法
+@Table("app") // 指定对应的数据库表名为"app"
+public class App implements Serializable { // 实现Serializable接口以支持序列化
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+    @Serial // 标记序列化相关的字段
+    private static final long serialVersionUID = 1L; // 序列化版本号
 
     /**
      * id
+     * 主键字段，使用雪花算法生成
      */
-    @Id(keyType = KeyType.Generator, value = KeyGenerators.snowFlakeId)
+    @Id(keyType = KeyType.Generator, value = KeyGenerators.snowFlakeId) // 标识为主键，使用雪花算法生成
     private Long id;
 
     /**
      * 应用名称
+     * 应用的唯一标识名称
      */
     @Column("appName")
     private String appName;

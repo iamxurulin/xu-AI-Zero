@@ -1,8 +1,8 @@
 package com.ruhuo.xuaizerobackend.service;
 
 /**
- * 截图服务
- *
+ * 截图服务接口
+ * 该接口定义了截图服务的基本功能，用于生成并上传截图
  */
 public interface ScreenshotService {
 

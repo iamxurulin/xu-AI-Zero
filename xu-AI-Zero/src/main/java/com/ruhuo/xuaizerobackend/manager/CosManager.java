@@ -12,54 +12,53 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 
 /**
- * COS 对象存储管理器
- *将本地文件上传到腾讯云 COS，并返回该文件在互联网上的访问链接（URL）
+ * CosManager类是一个用于管理腾讯云对象存储(COS)操作的组件
+ * 该类提供了文件上传到COS的基本功能
  */
-
 @Component
 @Slf4j
 public class CosManager {
 
     @Resource
-    private CosClientConfig cosClientConfig;
+    private CosClientConfig cosClientConfig; // 腾讯云COS客户端配置对象
 
     @Resource
-    private COSClient cosClient;
+    private COSClient cosClient; // 腾讯云COS客户端对象
 
     /**
-     * 上传对象
+     * 将文件上传到COS
      *
-     * @param key   唯一键
-     * @param file  文件
-     * @return  上传结果
+     * @param key  文件在COS中的存储键(即文件路径)
+     * @param file 要上传的本地文件对象
+     * @return PutObjectResult 上传结果对象
      */
-    public PutObjectResult putObject(String key, File file){
-        // 1. 创建上传请求对象
-        // 参数：存储桶名称, 文件的唯一键(路径), 文件本体
-        PutObjectRequest putObjectRequest = new PutObjectRequest(cosClientConfig.getBucket(),key,file);
-
-        // 2. 调用 SDK 进行上传
+    public PutObjectResult putObject(String key, File file) {
+        // 创建PutObjectRequest对象，指定存储桶名称、文件键和本地文件对象
+        PutObjectRequest putObjectRequest = new PutObjectRequest(cosClientConfig.getBucket(), key, file);
+        // 调用cosClient的putObject方法执行上传操作，并返回上传结果
         return cosClient.putObject(putObjectRequest);
     }
 
     /**
-     * 上传文件到 COS 并返回访问 URL
+     * 上传文件并返回可访问的URL
      *
-     * @param key   COS对象键（完整路径）
-     * @param file  要上传的文件
-     * @return  文件的访问URL，失败返回null
+     * @param key  文件在COS中的存储键(即文件路径)
+     * @param file 要上传的本地文件对象
+     * @return String 上传成功后文件的访问URL，失败返回null
      */
+    public String uploadFile(String key, File file) {
+        // 调用putObject方法上传文件，并将结果保存在result变量中
+        PutObjectResult result = putObject(key, file);
 
-    public String uploadFile(String key,File file){
-        //上传文件
-        PutObjectResult result = putObject(key,file);
-
-        if(result!=null){
-            //构建访问 URL
-            String url = String.format("https://%s/%s",cosClientConfig.getHost(), key);
-            log.info("文件上传 COS 成功:{} -> {}",file.getName(),url);
+        // 检查上传结果是否不为空
+        if (result != null) {
+            // 构建文件的访问URL
+            String url = String.format("https://%s/%s", cosClientConfig.getHost(), key);
+            // 记录上传成功的日志
+            log.info("文件上传 COS 成功:{} -> {}", file.getName(), url);
             return url;
-        }else {
+        } else {
+            // 记录上传失败的日志
             log.error("文件上传 COS 失败，返回结果为空");
             return null;
         }
