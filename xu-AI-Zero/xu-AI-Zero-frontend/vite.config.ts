@@ -24,5 +24,8 @@ export default defineConfig({
         secure: false,
       },
     },
+    allowedHosts: [
+      'nondistillable-inaptly-sheila.ngrok-free.dev',
+    ],
   },
 })
