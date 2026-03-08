@@ -1,5 +1,11 @@
 # AI零代码应用生成平台
 
+**AI零代码应用生成平台**基于LangChain4j和LangGraph4j构建AI智能体和工作流，结合Spring Boot 3微服务架构，实现从需求描述到一键部署的全链路自动化。
+
+用户只需输入自然语言（如“创建一个电商网站”），AI即可智能生成完整前端/后端代码，支持可视化编辑、实时预览、一键云部署和企业级管理。
+
+区别于传统低代码工具，本项目深度融合AI工作流和微服务设计，能够处理复杂场景如多文件工程生成和增量修改。
+
 ## 项目地址
 
 [AI_Zero_Coder_Studio](https://nondistillable-inaptly-sheila.ngrok-free.dev/)
@@ -35,10 +41,37 @@
 ### 代码生成工作流
 ![](./Figure/代码生成工作流.png)
 
-### 代码生成工作流
+## 为什么做这个项目？
+- **AI革命性创新**：不止生成代码，还支持AI智能路由选择生成策略、工具调用构建复杂项目（如Vue工程），并通过工作流实现多轮交互编辑。
+- **企业级架构**：从单体到微服务转型实战，涵盖服务拆分、Dubbo RPC调用、Nacos注册/配置中心、Higress网关（路由/限流/认证），展示高可用、可扩展设计。
+- **性能与优化**：多角度优化（性能/安全/稳定性/成本），如虚拟线程响应式编程、AI护轨、TTL对话记忆，适用于高并发AI场景。
+
+## 核心特性
+- **智能生成**：自然语言输入 → AI分析策略 → 生成原生HTML/Vue工程，支持流式输出实时反馈。
+- **可视化编辑**：实时预览+AI对话修改元素，支持全量/增量更新。
+- **一键部署**：自动截图封面、云部署（COS存储）、源码下载和分享链接。
+- **企业管理**：用户/应用管理、精选应用设置、AI调用监控、业务指标可视化（Prometheus+Grafana）。
+- **AI高级能力**：工作流编排（LangGraph4j）、工具调用、对话记忆持久化（Redis隔离）、护轨防幻觉。
+- **监控与优化**：ARMS性能追踪、Token消耗监控、多级缓存、限流熔断。
+
+## 技术栈
+### 后端
+- **框架**：Spring Boot 3.x + Java 21虚拟线程 + MyBatis Flex。
+- **AI核心**：LangChain4j（智能体/工具调用）、LangGraph4j（工作流）、DeepSeek/Qwen模型。
+- **微服务**：Spring Cloud Alibaba + Dubbo RPC + Nacos（注册/配置中心） + Higress网关（路由/限流/认证）。
+- **存储**：MySQL + Redis（缓存/会话） + COS对象存储 + Caffeine本地缓存。
+- **监控**：ARMS（性能/链路追踪） + Prometheus（指标收集） + Grafana（可视化）。
+- **工具**：Hutool + Knife4j/Swagger（API文档） + Selenium（网页截图） + Redisson（分布式Session/限流）。
+
+### 前端
+- **框架**：Vue 3 + Composition API + Ant Design Vue。
+- **工程化**：Vite + TypeScript + ESLint/Prettier + Pinia状态管理 + Axios + OpenAPI代码生成。
+- **渲染**：Markdown高亮 + 实时预览组件。
+
+## 更新日志
 
 
-## 后端
+### 后端
 
 - 后端初始化，在controller包下新建一个测试接口
 
@@ -48,12 +81,12 @@
 - 完成用户注册功能
 
 
-## 前端
+### 前端
 
 - 前端项目初始化完成，初始页面形成
 
 
-## 后端
+### 后端
 
 完成如下功能：
 
@@ -73,7 +106,7 @@ fix:
 
 
 
-## 前端
+### 前端
 
 完成如下页面的开发：
 
@@ -87,7 +120,7 @@ fix:
 - 【用户权限控制】
 
 
-## 后端
+### 后端
 
 - 完成原生模式AI应用生成的开发
 
@@ -124,7 +157,7 @@ fix:
 
 
 
-## 前端
+### 前端
 
 使用Cursor结合Vibe Coding实现以下功能：
 
@@ -140,7 +173,7 @@ fix:
 
 
 
-## 对话历史后端开发：
+#### 对话历史后端开发：
 
 使用Cursor结合Vibe Coding以及MyBatis Flex实现以下功能：
 
@@ -151,7 +184,7 @@ fix:
 
 
 
-## 对话历史前端开发
+#### 对话历史前端开发
 
 使用Cursor结合Vibe Coding实现以下功能：
 
@@ -176,7 +209,7 @@ fix:
 - 加载时自动请求
 - 错误处理
 
-## 对话记忆后端开发
+#### 对话记忆后端开发
 
 配置Redis，给AI服务方法增加memoryId注解和参数，通过chatMeomryProvider为每个appId分配对话记忆。
 
@@ -194,7 +227,7 @@ fix：
 
 
 
-## 后端
+### 后端
 
 - 1.新增 Vue 工程推理流式模型的配置
 
@@ -214,11 +247,11 @@ fix：
 
 - 9.支持 Vue 项目的部署
 
-## 前端
+### 前端
 
 - 新增 Vue 工程模式
 
-## 后端
+### 后端
 
 - 1.实现本地生成应用封面截图
 
@@ -232,7 +265,7 @@ fix：
 - 完成【AI智能选择方案】（html、多文件、Vue工程模式）的前后端开发
 
 
-## 前端
+### 前端
 
 - 结合Vibe Coding新增可视化编辑工具文件visualEditor.ts
 
@@ -242,7 +275,7 @@ fix：
 
 - 实现原生html模式和原生多文件模式的全量可视化修改
 
-## 后端
+### 后端
 
 - 通过策略模式的思路，实现并优化了
 【文件删除工具】、【文件目录读取工具】、【文件修改工具】、【文件读取工具】、【文件写入工具】、【工具管理类】
@@ -250,7 +283,7 @@ fix：
 - 实现Vue工程模式的增量可视化修改
 
 
-## 后端
+### 后端
 实现以下工具：
 
 - 内容图片收集工具
@@ -286,7 +319,7 @@ modify:
 代码生成节点、工作流增加质量检查
 
 
-## 优化
+### 优化
 
 - 采用多例模式实现AI并发调用
 
@@ -304,9 +337,9 @@ modify:
 
 
 
-## 微服务改造
+### 微服务改造
 
-### common公共模块
+#### common公共模块
 
 - common/公共请求响应类(BaseResponse、ResultUtils等)
 
@@ -325,7 +358,7 @@ modify:
 - annotation/注解(AuthCheck)
 
 
-### model实体模型模块
+#### model实体模型模块
 
 - model/entity/ 实体类(User、App、ChatHistory)
 
@@ -336,14 +369,14 @@ modify:
 - model/enums/ 枚举类
 
 
-### client服务接口模块
+#### client服务接口模块
 
 - 内部截图服务
 
 - 内部使用的用户服务
 
 
-### user用户服务
+#### user用户服务
 
 - aop/AuthInterceptor.java 权限拦截器
 
@@ -355,7 +388,7 @@ modify:
 
 
 
-### AI代码生成模块
+#### AI代码生成模块
 
 - dev.langchain4j/ LangChain4j 源码修改
 
@@ -373,7 +406,7 @@ modify:
 
 
 
-### app应用服务
+#### app应用服务
 
 - ai/ AI 服务工厂类(AiCodeGeneratorServiceFactory.java、AiCodeGenTypeRoutingServiceFactory.java)
 
@@ -394,7 +427,7 @@ modify:
 
 
 
-### screenshot网页截图服务
+#### screenshot网页截图服务
 
 - utils/WebScreenshotUtils.java 网页截图工具类
 
