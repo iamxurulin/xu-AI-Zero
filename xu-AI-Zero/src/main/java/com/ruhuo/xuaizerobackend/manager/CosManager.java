@@ -17,6 +17,7 @@ import java.io.File;
  */
 @Component
 @Slf4j
+@Deprecated
 public class CosManager {
 
     @Resource

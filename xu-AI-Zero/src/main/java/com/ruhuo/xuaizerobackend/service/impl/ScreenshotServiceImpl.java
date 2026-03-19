@@ -19,8 +19,9 @@ import java.util.UUID;
 /**
  * ScreenshotServiceImpl类实现了ScreenshotService接口，提供网页截图生成并上传到对象存储的服务
  */
-@Service
+//@Service
 @Slf4j
+@Deprecated
 public class ScreenshotServiceImpl implements ScreenshotService {
     @Resource
     private CosManager cosManager; // 注入CosManager，用于对象存储操作
