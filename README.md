@@ -329,6 +329,7 @@ modify:
 - 为防止AI陷入工具调用的无限循环，设置调用工具的次数上限
 - Prometheus + Grafana实现可视化业务监控
 - 采用Github+jsDelivr 搭建零成本图床存储截图页面
+- 新增对话历史导出功能
 
 
 

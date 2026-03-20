@@ -15,6 +15,12 @@
           </template>
           应用详情
         </a-button>
+        <a-button type="default" @click="exportToMarkdown">
+          <template #icon>
+            <FileMarkdownOutlined />
+          </template>
+          导出记录
+        </a-button>
         <a-button
           type="primary"
           ghost
@@ -236,6 +242,7 @@ import {
   ExportOutlined,
   InfoCircleOutlined,
   DownloadOutlined,
+  FileMarkdownOutlined,
   EditOutlined,
 } from '@ant-design/icons-vue'
 
@@ -643,6 +650,32 @@ const downloadCode = async () => {
     message.error('下载失败，请重试')
   } finally {
     downloading.value = false
+  }
+}
+
+// 导出对话记录为 Markdown 文件
+const exportToMarkdown = async () => {
+  if (!appId.value) {
+    message.error('应用ID不存在')
+    return
+  }
+  try {
+    // 使用 axios 实例，请求后端导出接口，必须设置 responseType 为 'blob'
+    const res = await request.get(`/api/chat_history/export/${appId.value}`, {
+      responseType: 'blob',
+    })
+    const blob = res.data
+    const downloadUrl = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = downloadUrl
+    link.download = 'chat_history.md'
+    link.click()
+    // 释放资源
+    URL.revokeObjectURL(downloadUrl)
+    message.success('导出成功')
+  } catch (error) {
+    console.error('导出失败：', error)
+    message.error('导出失败，请重试')
   }
 }
 
