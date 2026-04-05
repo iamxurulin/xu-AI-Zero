@@ -8,6 +8,7 @@ import * as chatHistoryController from './chatHistoryController'
 import * as appController from './appController'
 import * as staticResourceController from './staticResourceController'
 import * as healthController from './healthController'
+import * as chatHistoryExportController from './chatHistoryExportController'
 export default {
   workflowSseController,
   userController,
@@ -15,4 +16,5 @@ export default {
   appController,
   staticResourceController,
   healthController,
+  chatHistoryExportController,
 }

@@ -331,7 +331,15 @@ modify:
 - 采用Github+jsDelivr 搭建零成本图床存储截图页面
 - 新增对话历史导出功能
 
+fix: 解决类加载器冲突和 openapi2ts 配置问题
 
+1. 后端：禁用 Spring Boot DevTools 修复 ClassCastException
+   - 在 pom.xml 中注释掉 spring-boot-devtools 依赖
+   - 解决 BaseResponse 被两个不同类加载器加载的问题
+
+2. 前端：修复 ES 模块项目中的 openapi2ts 配置
+   - 将 JS 配置文件替换为 JSON 格式 (.openapi2tsrc.json)
+   - 解决与 package.json 中 "type": "module" 的兼容性问题
 
 ### 微服务改造
 

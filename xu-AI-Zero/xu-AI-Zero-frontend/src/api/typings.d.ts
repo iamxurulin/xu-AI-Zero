@@ -163,6 +163,10 @@ declare namespace API {
     prompt: string
   }
 
+  type exportChatHistoryAsMarkdownParams = {
+    appId: number
+  }
+
   type getAppByIdByAdminParams = {
     id: number
   }
