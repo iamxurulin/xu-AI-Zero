@@ -9,6 +9,8 @@ import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.ruhuo.xuaizerobackend.ai.AiCodeGenTypeRoutingService;
 import com.ruhuo.xuaizerobackend.ai.AiCodeGenTypeRoutingServiceFactory;
+import com.ruhuo.xuaizerobackend.ai.AiAppNameGeneratorService;
+import com.ruhuo.xuaizerobackend.ai.AiAppNameGeneratorServiceFactory;
 import com.ruhuo.xuaizerobackend.constant.AppConstant;
 import com.ruhuo.xuaizerobackend.core.AiCodeGeneratorFacade;
 import com.ruhuo.xuaizerobackend.core.builder.VueProjectBuilder;
@@ -103,6 +105,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     @Resource
     private AiCodeGenTypeRoutingServiceFactory aiCodeGenTypeRoutingServiceFactory;
 
+    @Resource
+    private AiAppNameGeneratorServiceFactory aiAppNameGeneratorServiceFactory;
+
     /**
      * 创建应用的方法
      * @param appAddRequest 应用添加请求参数，包含应用的初始化信息
@@ -122,8 +127,8 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
 // 设置app对象的userId属性为当前登录用户的ID
         app.setUserId(loginUser.getId());
 
-        //应用名称暂时设置为initPrompt的前16位
-        app.setAppName(initPrompt.substring(0, Math.min(initPrompt.length(), 16)));
+        String appName = generateAppNameByAI(initPrompt);
+        app.setAppName(appName);
 
         //使用AI智能选择代码生成类型（多例模式）
         AiCodeGenTypeRoutingService aiCodeGenTypeRoutingService = aiCodeGenTypeRoutingServiceFactory.createAiCodeGenTypeRoutingService();
@@ -139,6 +144,24 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         log.info("应用创建成功， ID: {}, 类型: {}",app.getId(),selectedCodeGenType.getValue());
         // 返回新创建的应用ID
         return app.getId();
+    }
+
+    private String generateAppNameByAI(String initPrompt) {
+        try {
+            AiAppNameGeneratorService nameGenerator = aiAppNameGeneratorServiceFactory.createAiAppNameGeneratorService();
+            String aiName = nameGenerator.generateAppName(initPrompt);
+            if (StrUtil.isNotBlank(aiName)) {
+                String cleanName = aiName.replaceAll("[\"'`《》【】()（）\\[\\]{}]", "").trim();
+                if (cleanName.length() > 20) {
+                    cleanName = cleanName.substring(0, 20);
+                }
+                log.info("AI 生成应用名称: {} (原始描述: {})", cleanName, initPrompt);
+                return cleanName;
+            }
+        } catch (Exception e) {
+            log.warn("AI 生成应用名称失败，使用默认名称，错误: {}", e.getMessage());
+        }
+        return initPrompt.substring(0, Math.min(initPrompt.length(), 16));
     }
 
     /**

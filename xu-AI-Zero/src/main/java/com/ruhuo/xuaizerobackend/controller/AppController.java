@@ -28,6 +28,7 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.util.PerformanceSensitive;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
@@ -167,6 +168,7 @@ public class AppController {
      * @throws BusinessException 当参数错误、应用不存在、无权限或操作失败时抛出
      */
     @PostMapping("/update")
+    @CacheEvict(value = "good_app_page", allEntries = true)
     public BaseResponse<Boolean> updateApp(@RequestBody AppUpdateRequest appUpdateRequest, HttpServletRequest request) {
         // 检查请求参数是否有效，必须包含应用ID
         if (appUpdateRequest == null || appUpdateRequest.getId() == null) {
@@ -380,6 +382,7 @@ public class AppController {
      */
     @PostMapping("/admin/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @CacheEvict(value = "good_app_page", allEntries = true)
     public BaseResponse<Boolean> updateAppByAdmin(@RequestBody AppAdminUpdateRequest appAdminUpdateRequest) {
         // 检查请求参数是否为空或ID是否为空
         // 检查更新请求参数是否有效

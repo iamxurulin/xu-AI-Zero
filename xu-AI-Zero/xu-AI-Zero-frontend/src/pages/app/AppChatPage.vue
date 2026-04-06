@@ -3,7 +3,22 @@
     <!-- 顶部栏 -->
     <div class="header-bar">
       <div class="header-left">
-        <h1 class="app-name">{{ appInfo?.appName || '网站生成器' }}</h1>
+        <div v-if="!editingName" class="app-name-wrapper" @click="startEditName" v-show="isOwner">
+          <h1 class="app-name">{{ appInfo?.appName || '网站生成器' }}</h1>
+          <EditOutlined class="edit-icon" />
+        </div>
+        <h1 v-else-if="isOwner" class="app-name">
+          <a-input
+            ref="nameInputRef"
+            v-model:value="editingAppName"
+            :maxlength="20"
+            size="small"
+            class="name-input"
+            @pressEnter="saveAppName"
+            @blur="saveAppName"
+          />
+        </h1>
+        <h1 v-else class="app-name">{{ appInfo?.appName || '网站生成器' }}</h1>
         <a-tag v-if="appInfo?.codeGenType" color="blue" class="code-gen-type-tag">
           {{ formatCodeGenType(appInfo.codeGenType) }}
         </a-tag>
@@ -222,6 +237,7 @@ import { message } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/loginUser'
 import {
   getAppVoById,
+  updateApp,
   deployApp as deployAppApi,
   deleteApp as deleteAppApi,
 } from '@/api/appController'
@@ -284,6 +300,11 @@ const deployUrl = ref('')
 
 // 下载相关
 const downloading = ref(false)
+
+// 应用名称编辑相关
+const editingName = ref(false)
+const editingAppName = ref('')
+const nameInputRef = ref()
 
 // 可视化编辑相关
 const isEditMode = ref(false)
@@ -738,6 +759,44 @@ const editApp = () => {
   }
 }
 
+// 内联编辑应用名称
+const startEditName = () => {
+  if (!isOwner.value) return
+  editingAppName.value = appInfo.value?.appName || ''
+  editingName.value = true
+  nextTick(() => {
+    nameInputRef.value?.focus()
+  })
+}
+
+const saveAppName = async () => {
+  const newName = editingAppName.value.trim()
+  if (!newName || newName === appInfo.value?.appName) {
+    editingName.value = false
+    return
+  }
+  if (!appInfo.value?.id) return
+  try {
+    const res = await updateApp({
+      id: appInfo.value.id,
+      appName: newName,
+    })
+    if (res.data.code === 0) {
+      if (appInfo.value) {
+        appInfo.value.appName = newName
+      }
+      message.success('名称已更新')
+    } else {
+      message.error('更新失败：' + res.data.message)
+    }
+  } catch (error) {
+    console.error('更新应用名称失败：', error)
+    message.error('更新失败')
+  } finally {
+    editingName.value = false
+  }
+}
+
 // 删除应用
 const deleteApp = async () => {
   if (!appInfo.value?.id) return
@@ -834,6 +893,35 @@ onUnmounted(() => {
   font-size: 18px;
   font-weight: 600;
   color: #1a1a1a;
+}
+
+.app-name-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 4px 12px;
+  border-radius: 8px;
+  border: 1.5px dashed #c0c0c0;
+  background: linear-gradient(135deg, #f8f9ff, #fff5f8);
+  transition: all 0.25s ease;
+}
+
+.app-name-wrapper:hover {
+  border-color: #6366f1;
+  border-style: solid;
+  background: linear-gradient(135deg, #eef2ff, #fdf2f8);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
+}
+
+.app-name-wrapper .edit-icon {
+  font-size: 13px;
+  color: #6366f1;
+  opacity: 1;
+}
+
+.name-input {
+  max-width: 280px !important;
 }
 
 .header-right {
