@@ -7,7 +7,6 @@ import { computed } from 'vue'
 import MarkdownIt from 'markdown-it'
 import hljs from 'highlight.js'
 
-// 引入代码高亮样式
 import 'highlight.js/styles/github.css'
 
 interface Props {
@@ -16,7 +15,6 @@ interface Props {
 
 const props = defineProps<Props>()
 
-// 配置 markdown-it 实例
 const md: MarkdownIt = new MarkdownIt({
   html: true,
   linkify: true,
@@ -30,7 +28,6 @@ const md: MarkdownIt = new MarkdownIt({
           '</code></pre>'
         )
       } catch {
-        // 忽略错误，使用默认处理
       }
     }
 
@@ -38,7 +35,6 @@ const md: MarkdownIt = new MarkdownIt({
   },
 })
 
-// 计算渲染后的 Markdown
 const renderedMarkdown = computed(() => {
   return md.render(props.content)
 })
@@ -51,7 +47,6 @@ const renderedMarkdown = computed(() => {
   word-wrap: break-word;
 }
 
-/* 全局样式，影响 v-html 内容 */
 .markdown-content :deep(h1),
 .markdown-content :deep(h2),
 .markdown-content :deep(h3),
@@ -168,50 +163,5 @@ const renderedMarkdown = computed(() => {
   border: none;
   border-top: 1px solid #eee;
   margin: 1.5em 0;
-}
-
-/* 代码高亮样式优化 */
-.markdown-content :deep(.hljs) {
-  background-color: #f8f8f8 !important;
-  border-radius: 6px;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.9em;
-  line-height: 1.4;
-}
-
-/* 特定语言的代码块样式 */
-.markdown-content :deep(.hljs-keyword) {
-  color: #d73a49;
-  font-weight: 600;
-}
-
-.markdown-content :deep(.hljs-string) {
-  color: #032f62;
-}
-
-.markdown-content :deep(.hljs-comment) {
-  color: #6a737d;
-  font-style: italic;
-}
-
-.markdown-content :deep(.hljs-number) {
-  color: #005cc5;
-}
-
-.markdown-content :deep(.hljs-function) {
-  color: #6f42c1;
-}
-
-.markdown-content :deep(.hljs-tag) {
-  color: #22863a;
-}
-
-.markdown-content :deep(.hljs-attr) {
-  color: #6f42c1;
-}
-
-.markdown-content :deep(.hljs-title) {
-  color: #6f42c1;
-  font-weight: 600;
 }
 </style>

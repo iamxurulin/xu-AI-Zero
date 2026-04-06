@@ -221,9 +221,7 @@ fix:
 
 - 4.使用Spring Session + Redis管理登录态
 
-fix：
-
-- 无法加载对话记忆系统错误，删除AI添加到ChatHistory中的errorMsg字段
+#### fix： 无法加载对话记忆系统错误，删除AI添加到ChatHistory中的errorMsg字段
 
 
 
@@ -314,9 +312,7 @@ fix：
 - 实现质量检查AI服务
 - 开发质量检查工作节点
 
-modify:
-
-代码生成节点、工作流增加质量检查
+#### modify:代码生成节点、工作流增加质量检查
 
 
 ### 优化
@@ -372,6 +368,47 @@ modify:
    - StreamingChatModelConfig 注释掉 listeners 配置
    - ReasoningStreamingChatModelConfig 同上
    - 后续需排查 langchain4j 内部 null 传递的根本原因
+   
+ #### feat(frontend): 全面优化首页 UI 视觉效果与交互体验
+
+ 1. 首页视觉重构 — 标题与品牌升级
+    - 主标题从「AI 应用生成」升级为「让创意瞬间 变为现实」(64px/800weight)
+    - 副标题从「AI 零代码应用生成平台」改为「智能代码生成平台」
+    - 站点名称优化为 CodeCraftAI，带渐变色 AI 后缀
+    - 新增 Hero Badge 标签「🚀 AI 驱动的新一代开发方式」
+    - 描述文案重写：强调「自然语言描述 → 完整应用代码」「无需编程基础」
+
+ 2. Header 导航栏布局修复
+    - 统一 Header 高度为 64px，强制 :deep(.ant-row/.ant-col) 高度对齐
+    - Logo 尺寸缩小至 38px，标题 18px/副标题 10px，解决垂直偏移问题
+    - 左侧区域设置 height:64px + line-height:1 + align-items:center 确保居中
+    - 「智能代码生成平台」副标题右移 8px，优化视觉平衡
+
+ 3. 输入交互增强
+    - 文本框支持 Enter 键直接创建应用 (@keydown.enter.exact.prevent="createApp")
+    - 新增快捷标签栏（个人博客/企业官网/在线商城/作品集）一键填充提示词
+    - 输入框聚焦时上浮 + 阴影加深 + 紫色边框高亮
+
+ 4. 数据展示区新增统计卡片
+    - 新增三列统计数据：10K+ 应用已创建 / 98% 用户满意度 / 30s 平均生成时间
+    - 数字采用紫蓝渐变色 + 渐变文字裁剪效果
+    - 毛玻璃卡片背景 + 圆角分隔线设计
+
+ 5. 动态背景（雪花飞舞）
+    - 实现 50 片雪花飘落动画：
+      * 大小分层：4px / 5px / 7px / 8px / 9px / 10px 六种规格
+      * 速度范围：8~20s，错开延迟 -20s~0s 确保均匀分布
+      * 径向渐变填充 (#fff→#e8f0ff→#d0e0ff) 模拟真实雪花质感
+      * 三层 box-shadow 发光 (0.9/0.6/0.3) 增强可见度
+      * 下落旋转 720° + opacity 全程保持 0.85~1.0
+ 6. 后端：强化 HTML 生成 Prompt，解决网页显示原始 Markdown 问题
+    - 重写 codegen-html-system-prompt.txt，新增严格输出格式约束：
+      * 明确禁止返回任何 Markdown 语法（###、**、- 、> 等）
+      * 强制要求全部回复必须且只能是一个 html 完整代码块
+      * 要求输出可直接在浏览器中打开运行的完整 HTML 文档
+      * 新增最终检查清单（5 项必检），违反即判定失败
+    - 补充设计规范参考：美团 Nocode / 百度秒达 / Notion 风格
+    - 新增内容处理规范：文字内容必须转为结构化 HTML 元素展示
 
 ### 微服务改造
 
