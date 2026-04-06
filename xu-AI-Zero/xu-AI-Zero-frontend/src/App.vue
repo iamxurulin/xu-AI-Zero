@@ -20,10 +20,7 @@ body {
     'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
-}
-
-html {
-  overflow-x: hidden;
+  min-height: 100vh;
+  background: #f8fafc;
 }
 </style>

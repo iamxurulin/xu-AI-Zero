@@ -104,7 +104,6 @@ const columns = [
     title: 'ID',
     dataIndex: 'id',
     width: 80,
-    fixed: 'left',
   },
   {
     title: '应用名称',
@@ -149,8 +148,7 @@ const columns = [
   {
     title: '操作',
     key: 'action',
-    width: 200,
-    fixed: 'right',
+    width: 240,
   },
 ]
 
@@ -264,21 +262,125 @@ const deleteApp = async (id: number | undefined) => {
 
 <style scoped>
 #appManagePage {
-  padding: 24px;
-  background: white;
-  margin-top: 16px;
+  margin: 24px auto;
+  padding: 28px 36px;
+}
+
+#appManagePage :deep(.ant-form) {
+  background: #ffffff;
+  padding: 20px 24px;
+  border-radius: 14px;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.02);
+  border: 1px solid #eef2f7;
+  margin-bottom: 20px;
+}
+
+#appManagePage :deep(.ant-form-item) {
+  margin-right: 16px;
+  margin-bottom: 0;
+}
+
+#appManagePage :deep(.ant-input),
+#appManagePage :deep(.ant-select-selector) {
+  border-radius: 8px !important;
+}
+
+#appManagePage :deep(.ant-btn-primary) {
+  border-radius: 8px;
+  font-weight: 500;
+  height: 36px;
+  padding: 0 18px;
+}
+
+#appManagePage :deep(.ant-divider) {
+  display: none;
+}
+
+#appManagePage :deep(.ant-table-wrapper) {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(102, 126, 234, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.03);
+  border: 1px solid #eef2f7;
+  overflow-x: auto;
+  padding: 4px 0;
+}
+
+#appManagePage :deep(.ant-table) {
+  border-radius: 14px;
+}
+
+#appManagePage :deep(.ant-table-thead > tr > th) {
+  background: linear-gradient(135deg, #f8faff 0%, #f0f5ff 100%);
+  font-weight: 600;
+  color: #374151;
+  font-size: 13px;
+  letter-spacing: 0.3px;
+  padding: 12px 14px;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+#appManagePage :deep(.ant-table-tbody > tr > td) {
+  padding: 12px 14px;
+  color: #475569;
+  font-size: 13px;
+  vertical-align: middle;
+  transition: background 0.15s ease;
+}
+
+#appManagePage :deep(.ant-table-tbody > tr:hover > td) {
+  background: rgba(99, 102, 241, 0.03);
+}
+
+#appManagePage :deep(.ant-table-tbody > .ant-table-row:last-child > td) {
+  border-bottom: none;
+}
+
+#appManagePage :deep(.ant-tag) {
+  border-radius: 6px;
+  font-weight: 500;
+  padding: 1px 10px;
+  font-size: 12px;
+}
+
+#appManagePage :deep(.ant-image) {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+}
+
+#appManagePage :deep(.ant-image-img) {
+  object-fit: cover;
+}
+
+#appManagePage :deep(.ant-pagination) {
+  margin: 20px 0 0;
+  padding: 0 16px 16px;
+}
+
+#appManagePage :deep(.ant-space) {
+  flex-wrap: nowrap;
+}
+
+#appManagePage :deep(.ant-btn-sm) {
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 12px;
+  height: 30px;
+  padding: 0 12px;
 }
 
 .no-cover {
-  width: 80px;
-  height: 60px;
-  background: #f5f5f5;
+  width: 72px;
+  height: 52px;
+  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #999;
-  font-size: 12px;
-  border-radius: 4px;
+  color: #94a3b8;
+  font-size: 11px;
+  border-radius: 8px;
+  border: 1px dashed #cbd5e1;
 }
 
 .prompt-text {
@@ -286,24 +388,24 @@ const deleteApp = async (id: number | undefined) => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: #64748b;
+  cursor: default;
 }
 
 .text-gray {
-  color: #999;
+  color: #94a3b8;
+  font-size: 12px;
 }
 
 .featured-btn {
-  background: #faad14;
-  border-color: #faad14;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border-color: transparent;
   color: white;
+  border-radius: 6px;
+  font-weight: 600;
 }
 
 .featured-btn:hover {
-  background: #d48806;
-  border-color: #d48806;
-}
-
-:deep(.ant-table-tbody> tr> td) {
-  vertical-align: middle;
+  background: linear-gradient(135deg, #d97706, #b45309);
 }
 </style>

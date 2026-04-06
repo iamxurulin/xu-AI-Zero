@@ -1,6 +1,6 @@
 <template>
   <div id="userManagePage">
-    <!--    搜索表单-->
+    <!-- 搜索表单 -->
     <a-form layout="inline" :model="searchParams" @finish="doSearch">
       <a-form-item label="账号">
         <a-input v-model:value="searchParams.userAccount" placeholder="输入账号" />
@@ -26,7 +26,7 @@
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.dataIndex === 'userAvatar'">
-          <a-image :src="record.userAvatar" :width="120" />
+          <a-image :src="record.userAvatar" :width="72" :height="72" />
         </template>
 
         <template v-else-if="column.dataIndex === 'userRole'">
@@ -163,4 +163,104 @@ onMounted(() => {
 })
 </script>
 
-<style scoped></style>
+<style scoped>
+#userManagePage {
+  margin: 24px auto;
+  padding: 28px 36px;
+}
+
+#userManagePage :deep(.ant-form) {
+  background: #ffffff;
+  padding: 20px 24px;
+  border-radius: 14px;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.02);
+  border: 1px solid #eef2f7;
+  margin-bottom: 20px;
+}
+
+#userManagePage :deep(.ant-form-item) {
+  margin-right: 16px;
+  margin-bottom: 0;
+}
+
+#userManagePage :deep(.ant-form-item-label) {
+  font-weight: 500;
+  color: #475569;
+}
+
+#userManagePage :deep(.ant-input) {
+  border-radius: 8px;
+}
+
+#userManagePage :deep(.ant-btn-primary) {
+  border-radius: 8px;
+  font-weight: 500;
+  height: 36px;
+  padding: 0 18px;
+}
+
+#userManagePage :deep(.ant-divider) {
+  display: none;
+}
+
+#userManagePage :deep(.ant-table-wrapper) {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(102, 126, 234, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.03);
+  border: 1px solid #eef2f7;
+  overflow-x: auto;
+  padding: 4px 0;
+}
+
+#userManagePage :deep(.ant-table) {
+  border-radius: 14px;
+}
+
+#userManagePage :deep(.ant-table-thead > tr > th) {
+  background: linear-gradient(135deg, #f8faff 0%, #f0f5ff 100%);
+  font-weight: 600;
+  color: #374151;
+  font-size: 13px;
+  letter-spacing: 0.3px;
+  padding: 12px 14px;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+#userManagePage :deep(.ant-table-tbody > tr > td) {
+  padding: 12px 14px;
+  color: #475569;
+  font-size: 13px;
+  transition: background 0.15s ease;
+}
+
+#userManagePage :deep(.ant-table-tbody > tr:hover > td) {
+  background: rgba(99, 102, 241, 0.03);
+}
+
+#userManagePage :deep(.ant-table-tbody > .ant-table-row:last-child > td) {
+  border-bottom: none;
+}
+
+#userManagePage :deep(.ant-tag) {
+  border-radius: 6px;
+  font-weight: 500;
+  padding: 1px 10px;
+  font-size: 12px;
+}
+
+#userManagePage :deep(.ant-image) {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+}
+
+#userManagePage :deep(.ant-image-img) {
+  object-fit: cover;
+}
+
+#userManagePage :deep(.ant-pagination) {
+  margin: 20px 0 0;
+  padding: 0 16px 16px;
+}
+</style>

@@ -79,7 +79,6 @@ const columns = [
     title: 'ID',
     dataIndex: 'id',
     width: 80,
-    fixed: 'left',
   },
   {
     title: '消息内容',
@@ -110,7 +109,6 @@ const columns = [
     title: '操作',
     key: 'action',
     width: 180,
-    fixed: 'right',
   },
 ]
 
@@ -198,9 +196,102 @@ const deleteMessage = async (id: number | undefined) => {
 
 <style scoped>
 #chatManagePage {
-  padding: 24px;
-  background: white;
-  margin-top: 16px;
+  margin: 24px auto;
+  padding: 28px 36px;
+}
+
+#chatManagePage :deep(.ant-form) {
+  background: #ffffff;
+  padding: 20px 24px;
+  border-radius: 14px;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.02);
+  border: 1px solid #eef2f7;
+  margin-bottom: 20px;
+}
+
+#chatManagePage :deep(.ant-form-item) {
+  margin-right: 16px;
+  margin-bottom: 0;
+}
+
+#chatManagePage :deep(.ant-input),
+#chatManagePage :deep(.ant-select-selector) {
+  border-radius: 8px !important;
+}
+
+#chatManagePage :deep(.ant-btn-primary) {
+  border-radius: 8px;
+  font-weight: 500;
+  height: 36px;
+  padding: 0 18px;
+}
+
+#chatManagePage :deep(.ant-divider) {
+  display: none;
+}
+
+#chatManagePage :deep(.ant-table-wrapper) {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(102, 126, 234, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.03);
+  border: 1px solid #eef2f7;
+  overflow-x: auto;
+  padding: 4px 0;
+}
+
+#chatManagePage :deep(.ant-table) {
+  border-radius: 14px;
+}
+
+#chatManagePage :deep(.ant-table-thead > tr > th) {
+  background: linear-gradient(135deg, #f8faff 0%, #f0f5ff 100%);
+  font-weight: 600;
+  color: #374151;
+  font-size: 13px;
+  letter-spacing: 0.3px;
+  padding: 12px 14px;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+#chatManagePage :deep(.ant-table-tbody > tr > td) {
+  padding: 12px 14px;
+  color: #475569;
+  font-size: 13px;
+  vertical-align: middle;
+  transition: background 0.15s ease;
+}
+
+#chatManagePage :deep(.ant-table-tbody > tr:hover > td) {
+  background: rgba(99, 102, 241, 0.03);
+}
+
+#chatManagePage :deep(.ant-table-tbody > .ant-table-row:last-child > td) {
+  border-bottom: none;
+}
+
+#chatManagePage :deep(.ant-tag) {
+  border-radius: 6px;
+  font-weight: 500;
+  padding: 1px 10px;
+  font-size: 12px;
+}
+
+#chatManagePage :deep(.ant-pagination) {
+  margin: 20px 0 0;
+  padding: 0 16px 16px;
+}
+
+#chatManagePage :deep(.ant-space) {
+  flex-wrap: nowrap;
+}
+
+#chatManagePage :deep(.ant-btn-sm) {
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 12px;
+  height: 30px;
+  padding: 0 12px;
 }
 
 .message-text {
@@ -208,9 +299,7 @@ const deleteMessage = async (id: number | undefined) => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-:deep(.ant-table-tbody > tr > td) {
-  vertical-align: middle;
+  color: #64748b;
+  cursor: default;
 }
 </style>
