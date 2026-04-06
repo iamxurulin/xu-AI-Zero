@@ -251,24 +251,6 @@ onMounted(() => {
         </div>
       </div>
 
-      <!-- 统计数据 -->
-      <div class="stats-section">
-        <div class="stat-item">
-          <div class="stat-number">10K+</div>
-          <div class="stat-label">应用已创建</div>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <div class="stat-number">98%</div>
-          <div class="stat-label">用户满意度</div>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <div class="stat-number">30s</div>
-          <div class="stat-label">平均生成时间</div>
-        </div>
-      </div>
-
       <!-- 我的作品 -->
       <div class="section">
         <div class="section-header">
@@ -646,48 +628,6 @@ onMounted(() => {
   }
 }
 
-/* 统计数据 */
-.stats-section {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 48px;
-  padding: 48px 0;
-  margin: 40px 0 70px;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  border-radius: 24px;
-  border: 1px solid rgba(226, 232, 240, 0.6);
-  box-shadow: 0 4px 24px rgba(102, 126, 234, 0.06);
-}
-
-.stat-item {
-  text-align: center;
-}
-
-.stat-number {
-  font-size: 36px;
-  font-weight: 800;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  line-height: 1.2;
-}
-
-.stat-label {
-  font-size: 14px;
-  color: #94a3b8;
-  margin-top: 6px;
-  font-weight: 500;
-}
-
-.stat-divider {
-  width: 1px;
-  height: 50px;
-  background: linear-gradient(180deg, transparent, #cbd5e1, transparent);
-}
-
 /* 区域样式 */
 .section {
   margin-bottom: 70px;
@@ -759,15 +699,6 @@ onMounted(() => {
 
   .hero-description {
     font-size: 16px;
-  }
-
-  .stats-section {
-    gap: 24px;
-    padding: 32px 20px;
-  }
-
-  .stat-number {
-    font-size: 28px;
   }
 
   .app-grid,
