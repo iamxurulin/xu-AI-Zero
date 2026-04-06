@@ -57,13 +57,13 @@ public class JsonMessageStreamHandler {
                     return handleJsonMessageChunk(chunk, chatHistoryStringBuilder, seenToolIds);
                 })
                 .filter(StrUtil::isNotEmpty)//过滤空字串，只保留有效内容
-                .doOnComplete(() -> {  // 使用doOnComplete操作符，在流式响应完成时执行回调
-                    //流式响应完成后，添加AI消息到对话历史
-                    String aiResponse = chatHistoryStringBuilder.toString();  // 从StringBuilder中获取完整的AI响应字符串
-                    chatHistoryService.addChatMessage(appId, aiResponse, ChatHistoryMessageTypeEnum.AI.getValue(), loginUser.getId());  // 将AI回复添加到聊天历史记录中
-                    //异步构造Vue项目
-//                    String projectPath = AppConstant.CODE_OUTPUT_ROOT_DIR + "/vue_project_" + appId;  // 定义Vue项目输出路径
-//                    vueProjectBuilder.buildProjectAsync(projectPath);  // 异步构建Vue项目
+                .doOnComplete(() -> {
+                    String aiResponse = chatHistoryStringBuilder.toString();
+                    if (StrUtil.isNotBlank(aiResponse)) {
+                        chatHistoryService.addChatMessage(appId, aiResponse, ChatHistoryMessageTypeEnum.AI.getValue(), loginUser.getId());
+                    } else {
+                        log.warn("AI 响应内容为空，跳过保存聊天记录");
+                    }
                 })
                 .doOnError(error -> {  // 使用doOnError操作符，在流式响应发生错误时执行回调
                     //如果AI回复失败，也要记录错误消息

@@ -1,5 +1,6 @@
 package com.ruhuo.xuaizerobackend.core.handler;
 
+import cn.hutool.core.util.StrUtil;
 import com.ruhuo.xuaizerobackend.model.entity.User;
 import com.ruhuo.xuaizerobackend.model.enums.ChatHistoryMessageTypeEnum;
 import com.ruhuo.xuaizerobackend.service.ChatHistoryService;
@@ -32,9 +33,12 @@ public class SimpleTextStreamHandler {
         // 当流式响应正常完成时，将完整的AI响应添加到对话历史中
         // 使用doOnComplete操作符，在流式响应完成后执行回调
         .doOnComplete(()->{
-            //流式响应完成后，添加AI消息到对话历史
             String aiResponse = aiResponseBuilder.toString();
-            chatHistoryService.addChatMessage(appId,aiResponse, ChatHistoryMessageTypeEnum.AI.getValue(), loginUser.getId());
+            if (StrUtil.isNotBlank(aiResponse)) {
+                chatHistoryService.addChatMessage(appId,aiResponse, ChatHistoryMessageTypeEnum.AI.getValue(), loginUser.getId());
+            } else {
+                log.warn("AI 响应内容为空，跳过保存聊天记录");
+            }
         })
         .doOnError(error->{
             //如果AI回复失败，也要记录错误消息

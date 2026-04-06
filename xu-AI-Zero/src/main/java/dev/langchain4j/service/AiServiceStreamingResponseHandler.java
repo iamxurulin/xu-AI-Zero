@@ -158,6 +158,14 @@ class AiServiceStreamingResponseHandler implements StreamingChatResponseHandler 
      */
     @Override
     public void onCompleteResponse(ChatResponse completeResponse) {
+        if (completeResponse == null || completeResponse.aiMessage() == null) {
+            LOG.warn("Received null or empty response from AI model, notifying downstream to complete");
+            if (completeResponseHandler != null) {
+                completeResponseHandler.accept(completeResponse);
+            }
+            return;
+        }
+
         // 将AI生成的消息存储到内存中，以便后续对话使用
         AiMessage aiMessage = completeResponse.aiMessage();
         addToMemory(aiMessage);

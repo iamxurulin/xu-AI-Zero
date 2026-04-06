@@ -8,8 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.springframework.stereotype.Component;
 
+import javax.net.ssl.*;
 import java.io.File;
 import java.io.IOException;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.concurrent.TimeUnit;
 
@@ -20,10 +23,39 @@ public class GithubManager {
     @Resource
     private GithubConfig githubConfig;
 
-    private final OkHttpClient client = new OkHttpClient.Builder()
-            .connectTimeout(15, TimeUnit.SECONDS)
-            .readTimeout(15, TimeUnit.SECONDS)
-            .build();
+    private final OkHttpClient client = createUnsafeOkHttpClient();
+
+    private static OkHttpClient createUnsafeOkHttpClient() {
+        try {
+            TrustManager[] trustAllCerts = new TrustManager[]{
+                    new X509TrustManager() {
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return new X509Certificate[]{};
+                        }
+
+                        public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                        }
+
+                        public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                        }
+                    }
+            };
+
+            SSLContext sslContext = SSLContext.getInstance("SSL");
+            sslContext.init(null, trustAllCerts, new SecureRandom());
+            SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+
+            OkHttpClient.Builder builder = new OkHttpClient.Builder();
+            builder.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0]);
+            builder.hostnameVerifier((hostname, session) -> true);
+            builder.connectTimeout(15, TimeUnit.SECONDS);
+            builder.readTimeout(15, TimeUnit.SECONDS);
+
+            return builder.build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * 上传文件到 GitHub 仓库

@@ -331,7 +331,7 @@ modify:
 - 采用Github+jsDelivr 搭建零成本图床存储截图页面
 - 新增对话历史导出功能
 
-fix: 解决类加载器冲突和 openapi2ts 配置问题
+#### fix: 解决类加载器冲突和 openapi2ts 配置问题
 
 1. 后端：禁用 Spring Boot DevTools 修复 ClassCastException
    - 在 pom.xml 中注释掉 spring-boot-devtools 依赖
@@ -340,6 +340,38 @@ fix: 解决类加载器冲突和 openapi2ts 配置问题
 2. 前端：修复 ES 模块项目中的 openapi2ts 配置
    - 将 JS 配置文件替换为 JSON 格式 (.openapi2tsrc.json)
    - 解决与 package.json 中 "type": "module" 的兼容性问题
+
+#### fix: 修复AI返回空响应导致前端卡住和后端异常问题
+
+1. 流式响应处理：修复空响应导致Flux流无法完成
+   - AiServiceStreamingResponseHandler.onCompleteResponse 添加 null 检查
+   - 空响应时调用 completeResponseHandler 通知下游 sink.complete()
+   - 解决前端 EventSource 一直等待、"AI 正在思考..." 无法结束的问题
+
+2. 聊天记录保存：修复空内容触发 BusinessException
+   - SimpleTextStreamHandler.doOnComplete 添加 StrUtil.isNotBlank() 检查
+   - JsonMessageStreamHandler.doOnComplete 添加同样的空内容校验
+   - AI 返回空响应时跳过保存聊天记录，避免 "消息内容不能为空" 异常
+
+3. Vue 项目构建：防止空响应触发构建失败
+   - AiCodeGeneratorFacade.onCompleteResponse 添加 response != null 保护
+   - 空响应时跳过 vueProjectBuilder.buildProject() 调用
+   - 但仍然执行 sink.complete() 确保流正常结束
+
+4. 监听器空指针：全面 null 安全检查
+   - AiModelMonitorListener.onError/onResponse/recordTokenUsage/recordResponseTime
+   - context、chatRequest、error、metadata 等全部添加 null 判断
+   - 解决多处 NullPointerException
+
+5. GitHub 上传：修复 SSL 证书验证失败
+   - GithubManager 改用 createUnsafeOkHttpClient()
+   - TrustAllCerts + HostnameVerifier 关闭 SSL 验证
+   - 解决 javax.net.ssl.SSLHandshakeException
+
+6. 模型配置：暂时禁用监听器避免内部 NPE 传播
+   - StreamingChatModelConfig 注释掉 listeners 配置
+   - ReasoningStreamingChatModelConfig 同上
+   - 后续需排查 langchain4j 内部 null 传递的根本原因
 
 ### 微服务改造
 

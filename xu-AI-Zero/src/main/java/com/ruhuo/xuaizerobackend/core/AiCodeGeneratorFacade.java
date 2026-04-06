@@ -69,9 +69,13 @@ public class AiCodeGeneratorFacade {
                     })
                     // 注册完整响应处理函数，当收到完整响应时，执行Vue项目构建并完成流
                     .onCompleteResponse((ChatResponse response) -> {
-                        //执行 Vue 项目构建（同步执行，确保预览时项目已就绪）
-                        String projectPath = AppConstant.CODE_OUTPUT_ROOT_DIR + File.separator + "vue_project_" + appId;
-                        vueProjectBuilder.buildProject(projectPath);
+                        if (response != null && response.aiMessage() != null) {
+                            //执行 Vue 项目构建（同步执行，确保预览时项目已就绪）
+                            String projectPath = AppConstant.CODE_OUTPUT_ROOT_DIR + File.separator + "vue_project_" + appId;
+                            vueProjectBuilder.buildProject(projectPath);
+                        } else {
+                            log.warn("AI 返回空响应，跳过 Vue 项目构建");
+                        }
                         sink.complete(); // 完成流
                     })
                     // 注册错误处理函数，当发生错误时打印错误信息并将错误传递到流中

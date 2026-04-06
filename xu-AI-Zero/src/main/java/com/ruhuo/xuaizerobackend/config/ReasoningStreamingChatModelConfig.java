@@ -56,7 +56,7 @@ public class ReasoningStreamingChatModelConfig {
                 .temperature(temperature) // 设置温度参数，控制输出的随机性
                 .logRequests(logRequests) // 设置是否记录请求日志
                 .logResponses(logResponses) // 设置是否记录响应日志
-                .listeners(List.of(aiModelMonitorListener)) // 设置监听器列表，用于监控模型交互
+                //.listeners(List.of(aiModelMonitorListener)) // 暂时禁用监听器，避免langchain4j内部null错误
                 .build(); // 构建并返回StreamingChatModel实例
     }
 

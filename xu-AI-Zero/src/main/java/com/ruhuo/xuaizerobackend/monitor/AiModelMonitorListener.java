@@ -44,19 +44,21 @@ public class AiModelMonitorListener implements ChatModelListener {
         //获取当前线程绑定的监控上下文
         MonitorContext context = MonitorContextHolder.getContext();
         //从监控上下文中获取用户ID
-        String userId = context.getUserId();
+        String userId = context != null ? context.getUserId() : null;
         //从监控上下文中获取应用ID
-        String appId = context.getAppId();
+        String appId = context != null ? context.getAppId() : null;
 
         //将监控上下文信息存入请求上下文的属性中，供后续流程使用
         requestContext.attributes().put(MONITOR_CONTEXT_KEY, context);
 
         // 获取请求的模型名称
-        String modelName = requestContext.chatRequest().modelName();
+        String modelName = requestContext.chatRequest() != null ? requestContext.chatRequest().modelName() : null;
 
         // 使用AI模型指标收集器记录请求开始事件
         // 参数包括：用户ID、应用ID、模型名称和事件状态"started"
-        aiModelMetricsCollector.recordRequest(userId, appId, modelName, "started");
+        if (modelName != null) {
+            aiModelMetricsCollector.recordRequest(userId, appId, modelName, "started");
+        }
     }
 
 
@@ -71,18 +73,20 @@ public class AiModelMonitorListener implements ChatModelListener {
         //从监控上下文中获取信息
         MonitorContext context = (MonitorContext) attributes.get(MONITOR_CONTEXT_KEY);
         // 获取用户ID和应用程序ID
-        String userId = context.getUserId();  // 从上下文中获取用户ID
-        String appId = context.getAppId();    // 从上下文中获取应用程序ID
+        String userId = context != null ? context.getUserId() : null;
+        String appId = context != null ? context.getAppId() : null;
 
         //获取模型名称
-        String modelName = responseContext.chatResponse().modelName();
-        //记录成功请求
-        aiModelMetricsCollector.recordRequest(userId, appId, modelName, "success");
-        //记录响应时间
-        recordResponseTime(attributes, userId, appId, modelName);
-
-        //记录Token使用情况
-        recordTokenUsage(responseContext, userId, appId, modelName);
+        String modelName = responseContext.chatResponse() != null ? responseContext.chatResponse().modelName() : null;
+        
+        if (modelName != null) {
+            //记录成功请求
+            aiModelMetricsCollector.recordRequest(userId, appId, modelName, "success");
+            //记录响应时间
+            recordResponseTime(attributes, userId, appId, modelName);
+            //记录Token使用情况
+            recordTokenUsage(responseContext, userId, appId, modelName);
+        }
     }
 
     @Override
@@ -92,29 +96,33 @@ public class AiModelMonitorListener implements ChatModelListener {
      */
     public void onError(ChatModelErrorContext errorContext) {
 
-        // 从监控上下文持有者中获取监控上下文
-        MonitorContext context = MonitorContextHolder.getContext();
+        // 优先从 attributes 中获取（由 onRequest 存储）
+        Map<Object, Object> attributes = errorContext.attributes();
+        MonitorContext context = (MonitorContext) attributes.get(MONITOR_CONTEXT_KEY);
+        
+        // 如果 attributes 中没有，再从 Holder 中获取
+        if (context == null) {
+            context = MonitorContextHolder.getContext();
+        }
+        
         // 获取用户ID
-        String userId = context.getUserId();
+        String userId = context != null ? context.getUserId() : null;
         // 获取应用ID
-        String appId = context.getAppId();
-
+        String appId = context != null ? context.getAppId() : null;
 
         // 获取请求的模型名称
-        String modelName = errorContext.chatRequest().modelName();
+        String modelName = errorContext.chatRequest() != null ? errorContext.chatRequest().modelName() : null;
         // 获取错误信息
-        String errorMessage = errorContext.error().getMessage();
+        String errorMessage = errorContext.error() != null ? errorContext.error().getMessage() : "Unknown error";
 
-        // 记录错误请求指标
-        aiModelMetricsCollector.recordRequest(userId, appId, modelName, "error");
-        // 记录错误指标，包含错误信息
-        aiModelMetricsCollector.recordError(userId, appId, modelName, errorMessage);
-
-        // 获取属性映射
-        Map<Object, Object> attributes = errorContext.attributes();
-        // 记录响应时间
-        recordResponseTime(attributes, userId, appId, modelName);
-
+        if (modelName != null) {
+            // 记录错误请求指标
+            aiModelMetricsCollector.recordRequest(userId, appId, modelName, "error");
+            // 记录错误指标，包含错误信息
+            aiModelMetricsCollector.recordError(userId, appId, modelName, errorMessage);
+            // 记录响应时间
+            recordResponseTime(attributes, userId, appId, modelName);
+        }
     }
 
     /**
@@ -128,10 +136,12 @@ public class AiModelMonitorListener implements ChatModelListener {
     private void recordResponseTime(Map<Object, Object> attributes, String userId, String appId, String modelName) {
         // 从属性中获取请求开始时间
         Instant startTime = (Instant) attributes.get(REQUEST_START_TIME_KEY);
-        // 计算当前时间与开始时间之间的持续时间，即响应时间
-        Duration responseTime = Duration.between(startTime, Instant.now());
-        // 使用指标收集器记录响应时间
-        aiModelMetricsCollector.recordResponseTime(userId, appId, modelName, responseTime);
+        if (startTime != null) {
+            // 计算当前时间与开始时间之间的持续时间，即响应时间
+            Duration responseTime = Duration.between(startTime, Instant.now());
+            // 使用指标收集器记录响应时间
+            aiModelMetricsCollector.recordResponseTime(userId, appId, modelName, responseTime);
+        }
     }
 
 
@@ -145,16 +155,18 @@ public class AiModelMonitorListener implements ChatModelListener {
      */
     private void recordTokenUsage(ChatModelResponseContext responseContext, String userId, String appId, String modelName) {
         // 从响应上下文中获取token使用情况
-        TokenUsage tokenUsage = responseContext.chatResponse().metadata().tokenUsage();
-        // 检查token使用信息是否有效
-        if (tokenUsage != null) {
-            // 记录输入token的使用量
-            aiModelMetricsCollector.recordTokenUsage(userId, appId, modelName, "input", tokenUsage.inputTokenCount());
-            // 记录输出token的使用量
-            aiModelMetricsCollector.recordTokenUsage(userId, appId, modelName, "output", tokenUsage.outputTokenCount());
-            // 记录总token的使用量
-            aiModelMetricsCollector.recordTokenUsage(userId, appId, modelName, "total", tokenUsage.totalTokenCount());
+        if (responseContext.chatResponse() != null && responseContext.chatResponse().metadata() != null) {
+            TokenUsage tokenUsage = responseContext.chatResponse().metadata().tokenUsage();
+            // 检查token使用信息是否有效
+            if (tokenUsage != null) {
+                // 记录输入token的使用量
+                aiModelMetricsCollector.recordTokenUsage(userId, appId, modelName, "input", tokenUsage.inputTokenCount());
+                // 记录输出token的使用量
+                aiModelMetricsCollector.recordTokenUsage(userId, appId, modelName, "output", tokenUsage.outputTokenCount());
+                // 记录总token的使用量
+                aiModelMetricsCollector.recordTokenUsage(userId, appId, modelName, "total", tokenUsage.totalTokenCount());
 
+            }
         }
     }
 }
