@@ -55,7 +55,6 @@ const createApp = async () => {
     })
 
     if (res.data.code === 0 && res.data.data) {
-      message.success('✨ 应用创建成功')
       const appId = String(res.data.data)
       await router.push(`/app/chat/${appId}`)
     } else {
@@ -135,6 +134,14 @@ onMounted(() => {
 
 <template>
   <div id="homePage">
+    <!-- 全屏加载遮罩 -->
+    <div v-if="creating" class="loading-overlay">
+      <div class="loading-content">
+        <a-spin size="large" />
+        <p class="loading-text">正在为您初始化应用，请稍候...</p>
+        <p class="loading-subtext">AI 正在为您生成代码，这可能需要一点时间</p>
+      </div>
+    </div>
     <!-- 雪花背景 -->
     <div class="snow-container">
       <span class="snow snow-1"></span>
@@ -331,6 +338,64 @@ onMounted(() => {
     linear-gradient(180deg, #e8f4fc 0%, #f0f4ff 30%, #f8faff 60%, #fff5f8 100%);
   position: relative;
   overflow-x: hidden;
+}
+
+/* 全屏加载遮罩 */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, #e8f4fc 0%, #f0f4ff 30%, #f8faff 60%, #fff5f8 100%);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.loading-content {
+  text-align: center;
+  padding: 48px 32px;
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(102, 126, 234, 0.2), 0 8px 24px rgba(0, 0, 0, 0.08);
+  max-width: 480px;
+  animation: scaleIn 0.4s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.loading-text {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 24px 0 8px;
+}
+
+.loading-subtext {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
 }
 
 /* ========== 雪花飞舞效果 ========== */

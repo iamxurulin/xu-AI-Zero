@@ -305,6 +305,7 @@ fix: 修复AI返回空响应导致前端卡住和后端异常问题
    - ReasoningStreamingChatModelConfig 同上
    - 后续需排查 langchain4j 内部 null 传递的根本原因
    
+
 feat(frontend): 全面优化首页 UI 视觉效果与交互体验
 
  1. 首页视觉重构 — 标题与品牌升级
@@ -346,6 +347,7 @@ feat(frontend): 全面优化首页 UI 视觉效果与交互体验
     - 补充设计规范参考：美团 Nocode / 百度秒达 / Notion 风格
     - 新增内容处理规范：文字内容必须转为结构化 HTML 元素展示
     
+
 fix: 优化管理页面布局与全局背景效果
 
 - 管理页面（用户/应用/对话）：移除 max-width 限制和多余标题，修复操作列按钮被截断问题
@@ -357,6 +359,16 @@ feat: AI自动生成应用名称 + 内联编辑名称 + 精选缓存同步
 - 新增 AiAppNameGeneratorService，创建应用时根据用户描述AI生成简洁应用名称
 - AppChatPage 顶部栏支持点击即编辑应用名称，带彩色虚线框交互提示
 - updateApp/updateAdmin 接口添加 @CacheEvict，修复精选案例名称不同步问题
+
+feat: 优化"开始创建"按钮交互体验
+
+- 添加全屏加载遮罩，用户点击后立即显示加载状态
+- 对话页添加骨架屏，提升数据加载时的用户体验
+- 解决点击后长时间等待无反馈的问题
+
+修改文件：
+- src/pages/HomePage.vue: 添加全屏加载遮罩和样式
+- src/pages/app/AppChatPage.vue: 添加骨架屏加载状态
 
 ## 微服务改造
 

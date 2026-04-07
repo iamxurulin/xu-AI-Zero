@@ -1,6 +1,32 @@
 <template>
   <div id="appChatPage">
-    <!-- 顶部栏 -->
+    <!-- 全屏加载遮罩（骨架屏状态） -->
+    <div v-if="pageLoading" class="skeleton-container">
+      <div class="skeleton-wrapper">
+        <!-- 顶部栏骨架 -->
+        <div class="skeleton-header">
+          <a-skeleton-input class="skeleton-title" :active="true" />
+          <a-skeleton-button class="skeleton-btn" :active="true" />
+        </div>
+        <!-- 主要内容骨架 -->
+        <div class="skeleton-main">
+          <div class="skeleton-chat">
+            <a-skeleton paragraph :rows="8" :active="true" />
+          </div>
+          <div class="skeleton-preview">
+            <a-skeleton paragraph :rows="10" :active="true" />
+          </div>
+        </div>
+        <div class="loading-tip">
+          <a-spin size="large" />
+          <p>正在为您初始化应用，请稍候...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 正常内容 -->
+    <template v-else>
+      <!-- 顶部栏 -->
     <div class="header-bar">
       <div class="header-left">
         <div v-if="!editingName" class="app-name-wrapper" @click="startEditName" v-show="isOwner">
@@ -221,12 +247,13 @@
       @delete="deleteApp"
     />
 
-    <!-- 部署成功弹窗 -->
-    <DeploySuccessModal
-      v-model:open="deployModalVisible"
-      :deploy-url="deployUrl"
-      @open-site="openDeployedSite"
-    />
+      <!-- 部署成功弹窗 -->
+      <DeploySuccessModal
+        v-model:open="deployModalVisible"
+        :deploy-url="deployUrl"
+        @open-site="openDeployedSite"
+      />
+    </template>
   </div>
 </template>
 
@@ -269,6 +296,7 @@ const loginUserStore = useLoginUserStore()
 // 应用信息
 const appInfo = ref<API.AppVO>()
 const appId = ref<any>()
+const pageLoading = ref(true)
 
 // 对话相关
 interface Message {
@@ -426,6 +454,8 @@ const fetchAppInfo = async () => {
     console.error('获取应用信息失败：', error)
     message.error('获取应用信息失败')
     router.push('/')
+  } finally {
+    pageLoading.value = false
   }
 }
 
@@ -868,6 +898,75 @@ onUnmounted(() => {
   flex-direction: column;
   padding: 16px;
   background: #fdfdfd;
+}
+
+/* 骨架屏容器 */
+.skeleton-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fdfdfd;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.skeleton-wrapper {
+  width: 100%;
+  max-width: 1400px;
+  padding: 16px;
+}
+
+.skeleton-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+}
+
+.skeleton-title {
+  width: 300px;
+}
+
+.skeleton-btn {
+  width: 120px;
+}
+
+.skeleton-main {
+  display: flex;
+  gap: 16px;
+  height: calc(100vh - 150px);
+}
+
+.skeleton-chat {
+  flex: 2;
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.skeleton-preview {
+  flex: 3;
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.loading-tip {
+  text-align: center;
+  margin-top: 48px;
+  color: #666;
+}
+
+.loading-tip p {
+  margin-top: 16px;
+  font-size: 16px;
 }
 
 /* 顶部栏 */
